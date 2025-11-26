@@ -1,0 +1,1 @@
+# tealium-prism-android-firebase-dispatcher
