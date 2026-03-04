@@ -29,6 +29,7 @@ android {
 }
 
 dependencies {
+    api(platform(libs.prism.bom))
     api(libs.prism.core)
 
     implementation(platform(libs.firebase.bom))
