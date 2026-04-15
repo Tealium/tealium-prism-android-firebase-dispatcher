@@ -6,13 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.tealium.prism.firebase.example"
-    compileSdk {
-        version = release(36)
-    }
+    namespace = "com.tealium.prism.example"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.tealium.prism.firebase.example"
+        applicationId = "com.tealium.prism.example"
         minSdk = 23
         targetSdk = 36
         versionCode = 1
