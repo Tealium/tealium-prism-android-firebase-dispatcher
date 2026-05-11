@@ -26,6 +26,9 @@ android {
         jvmTarget = "11"
     }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 dependencies {
@@ -36,5 +39,6 @@ dependencies {
     implementation(libs.firebase.analytics)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
 }
-

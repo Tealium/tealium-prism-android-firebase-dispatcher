@@ -8,6 +8,8 @@ activityCompose = "1.8.0"
 composeBom = "2024.09.00"
 firebase-bom = "34.6.0"
 prism-bom = "0.4.0"
+mockk = "1.13.13"
+robolectric = "4.13"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,6 +26,8 @@ firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics
 prism-bom = { group = "com.tealium.prism", name = "prism-bom", version.ref = "prism-bom" }
 prism-core = { group = "com.tealium.prism", name = "prism-core" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
