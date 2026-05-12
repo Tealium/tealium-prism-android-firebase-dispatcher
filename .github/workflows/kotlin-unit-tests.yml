@@ -1,0 +1,96 @@
+name: Kotlin
+
+on: [pull_request]
+
+jobs:
+  unit-test:
+    name: Setup Unit Tests
+    runs-on: ubuntu-latest
+    outputs:
+      unit-tests: ${{ steps.unit-test-modules.outputs.unit-tests }}
+      inst-tests: ${{ steps.inst-test-modules.outputs.inst-tests }}
+    env:
+      CI_TASKS_ENABLED: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Android
+        uses: ./.github/actions/android-setup
+
+      - name: Fetch base branch
+        uses: ./.github/actions/fetch-base
+
+      - name: Build
+        run: ./gradlew assembleDebug
+
+      - name: Get Updated Modules For Unit Tests
+        id: unit-test-modules
+        run:  echo "unit-tests=$(./gradlew -q updatedUnitTestModules)" >> "$GITHUB_OUTPUT"
+
+      - name: Get Updated Modules For Instrumented Tests
+        id: inst-test-modules
+        run:  echo "inst-tests=$(./gradlew -q updatedInstrumentedTestModules)" >> "$GITHUB_OUTPUT"
+
+      - name: Unit tests
+        if: ${{ steps.unit-test-modules.outputs.unit-tests != '' }}
+        run: ./gradlew testModifiedDebugUnitTest -PMODIFIED_PROJECTS=${{ steps.unit-test-modules.outputs.unit-tests }}
+
+      - uses: ./.github/actions/upload-reports
+        with:
+          artifact-name: Reports-Unit-Tests
+  instrumented-test:
+    needs: unit-test
+    name: Run Instrumented Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [ 23, 33 ]
+    if: ${{ needs.unit-test.outputs.inst-tests != '' }}
+    env:
+      CI_TASKS_ENABLED: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/android-setup
+
+      - uses: ./.github/actions/fetch-base
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: AVD cache
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: Run Instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: ./gradlew testModifiedDebugInstrumentedTest -PMODIFIED_PROJECTS=${{ needs.unit-test.outputs.inst-tests }}
+
+      - uses: ./.github/actions/upload-reports
+        with:
+          artifact-name: Reports-${{ matrix.api-level }}
