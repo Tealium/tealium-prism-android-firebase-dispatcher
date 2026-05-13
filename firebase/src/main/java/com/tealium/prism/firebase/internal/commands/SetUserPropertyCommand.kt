@@ -60,8 +60,14 @@ internal class SetUserPropertyCommand(
             val names = extractStringList(namesItem)
             val values = extractStringList(valuesItem)
 
-            if (names.isEmpty() || names.all { it == null }) {
+            if (names.isEmpty()) {
                 throw CommandException.emptyArray(namesPath.toString())
+            }
+            if (names.all { it == null }) {
+                throw CommandException.invalidParameterType(
+                    namesPath.toString(),
+                    "string or string array",
+                )
             }
             if (names.size != values.size) {
                 throw CommandException.arrayLengthMismatch(

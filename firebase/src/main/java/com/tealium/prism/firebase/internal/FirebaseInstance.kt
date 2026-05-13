@@ -9,7 +9,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
  *
  * Firebase must already be initialized when the first call is made — either through the
  * automatic content-provider bootstrap from the `firebase-analytics` dependency, or via
- * an explicit `Firebase.initialize(context)` call in the host application.
+ * an explicit `FirebaseApp.initializeApp(context)` call in the host application.
  */
 internal class FirebaseInstance(context: Context) : FirebaseAnalyticsInterface {
 

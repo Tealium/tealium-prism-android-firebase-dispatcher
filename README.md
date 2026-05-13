@@ -11,7 +11,7 @@ Full schema, command list, and cross-platform semantics are documented on Conflu
 |----------------------------|---------|
 | Android API                | 23+     |
 | Kotlin                     | 2.0+    |
-| Tealium Prism Core         | dev     |
+| Tealium Prism Core         | 0.4.0+  |
 | Firebase Analytics (BoM)   | 34.6.0+ |
 
 ## Installation

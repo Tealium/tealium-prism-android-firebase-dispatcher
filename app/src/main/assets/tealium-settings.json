@@ -1,7 +1,7 @@
 {
   "modules": {
     "Firebase": {
-      "module_type": "Firebase",
+      "module_type": "FirebaseDispatcher",
       "configuration": {
         "session_timeout_seconds": 1800,
         "analytics_collection_enabled": true

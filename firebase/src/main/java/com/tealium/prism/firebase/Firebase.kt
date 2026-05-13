@@ -13,7 +13,7 @@ import com.tealium.prism.firebase.internal.FirebaseDispatcher
  *
  * Firebase must be initialized before the first command executes — typically via
  * automatic initialization by the `firebase-analytics` content provider, or explicitly
- * via `Firebase.initialize(context)` in `Application.onCreate()`. The dispatcher
+ * via `FirebaseApp.initializeApp(context)` in `Application.onCreate()`. The dispatcher
  * obtains its `FirebaseAnalytics` instance through `FirebaseAnalytics.getInstance(context)`.
  */
 object Firebase {
