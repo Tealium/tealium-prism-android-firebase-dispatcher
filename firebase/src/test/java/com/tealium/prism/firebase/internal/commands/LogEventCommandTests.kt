@@ -107,7 +107,7 @@ class LogEventCommandTests {
         val params = firebase.loggedEvents.single().parameters!!
         assertEquals(99.99, params.getDouble("value"), 0.0)
         assertEquals("USD", params.getString("currency"))
-        val items = params.getParcelableArrayList<Bundle>(FirebaseAnalytics.Param.ITEMS)!!
+        val items = params.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)!!
         assertEquals(2, items.size)
         assertEquals("SKU1", items[0].getString(FirebaseAnalytics.Param.ITEM_ID))
         assertEquals("Widget", items[0].getString(FirebaseAnalytics.Param.ITEM_NAME))
@@ -152,7 +152,7 @@ class LogEventCommandTests {
         val items = firebase.loggedEvents
             .single()
             .parameters!!
-            .getParcelableArrayList<Bundle>(FirebaseAnalytics.Param.ITEMS)!!
+            .getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)!!
         assertEquals(2, items.size)
         assertEquals("SKU1", items[0].getString(FirebaseAnalytics.Param.ITEM_ID))
         assertEquals("SKU2", items[1].getString(FirebaseAnalytics.Param.ITEM_ID))
@@ -192,7 +192,7 @@ class LogEventCommandTests {
         val items = firebase.loggedEvents
             .single()
             .parameters!!
-            .getParcelableArrayList<Bundle>(FirebaseAnalytics.Param.ITEMS)!!
+            .getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)!!
         assertEquals(2, items.size)
         assertEquals(1, items[0].getInt(FirebaseAnalytics.Param.QUANTITY))
         assertEquals(3, items[1].getInt(FirebaseAnalytics.Param.QUANTITY))

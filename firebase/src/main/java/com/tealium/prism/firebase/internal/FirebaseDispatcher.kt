@@ -66,7 +66,7 @@ internal class FirebaseDispatcher(
             }
         }
         cfg.sessionTimeoutSeconds?.let { seconds ->
-            val millis = (seconds * MILLISECONDS_PER_SECOND).toLong()
+            val millis = (seconds * FirebaseConstants.MILLISECONDS_PER_SECOND).toLong()
             firebaseInstance.setSessionTimeoutDuration(millis)
             logger.logIfDebugEnabled(logCategory) {
                 "Session timeout set to $seconds seconds from configuration"
@@ -104,7 +104,4 @@ internal class FirebaseDispatcher(
             )
     }
 
-    private companion object {
-        const val MILLISECONDS_PER_SECOND = 1_000.0
-    }
 }

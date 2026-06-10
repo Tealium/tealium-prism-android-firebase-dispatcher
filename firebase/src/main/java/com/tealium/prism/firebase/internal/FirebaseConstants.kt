@@ -5,4 +5,5 @@ package com.tealium.prism.firebase.internal
  */
 internal object FirebaseConstants {
     const val VERSION = "1.0.0"
+    const val MILLISECONDS_PER_SECOND = 1_000.0
 }

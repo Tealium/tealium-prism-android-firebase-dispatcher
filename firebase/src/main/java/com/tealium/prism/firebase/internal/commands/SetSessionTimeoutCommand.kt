@@ -13,6 +13,7 @@ import com.tealium.prism.core.api.pubsub.Disposables
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
+import com.tealium.prism.firebase.internal.FirebaseConstants
 
 /**
  * Updates the Firebase Analytics session timeout at runtime.
@@ -46,7 +47,7 @@ internal class SetSessionTimeoutCommand(
                     path.toString(),
                     "numeric value (seconds)",
                 )
-            val millis = (seconds * MILLISECONDS_PER_SECOND).toLong()
+            val millis = (seconds * FirebaseConstants.MILLISECONDS_PER_SECOND).toLong()
             firebaseInstance.setSessionTimeoutDuration(millis)
             callback.success(Unit)
         } catch (t: Throwable) {
@@ -55,7 +56,4 @@ internal class SetSessionTimeoutCommand(
         return Disposables.disposed()
     }
 
-    private companion object {
-        const val MILLISECONDS_PER_SECOND = 1_000.0
-    }
 }

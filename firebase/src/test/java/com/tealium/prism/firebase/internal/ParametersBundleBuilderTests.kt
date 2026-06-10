@@ -59,7 +59,7 @@ class ParametersBundleBuilderTests {
         )
         assertNotNull(bundle)
         requireNotNull(bundle)
-        val items = bundle.getParcelableArrayList<Bundle>(FirebaseAnalytics.Param.ITEMS)
+        val items = bundle.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)
         assertNotNull(items)
         requireNotNull(items)
         assertEquals(2, items.size)
@@ -90,7 +90,7 @@ class ParametersBundleBuilderTests {
         )
         assertNotNull(bundle)
         requireNotNull(bundle)
-        val items = bundle.getParcelableArrayList<Bundle>(FirebaseAnalytics.Param.ITEMS)
+        val items = bundle.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)
         assertNotNull(items)
         requireNotNull(items)
         assertEquals(2, items.size)
@@ -118,6 +118,20 @@ class ParametersBundleBuilderTests {
             DataObject.create { putNull("drop") }
         )
         assertNull(bundle)
+    }
+
+    @Test
+    fun empty_items_list_produces_empty_items_array() {
+        val bundle = ParametersBundleBuilder.build(
+            DataObject.create {
+                put(FirebaseAnalytics.Param.ITEMS, DataList.create {})
+            }
+        )
+        assertNotNull(bundle)
+        requireNotNull(bundle)
+        val items = bundle.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)
+        assertNotNull(items)
+        assertEquals(0, items?.size)
     }
 
     @Test

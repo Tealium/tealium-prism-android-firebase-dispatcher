@@ -29,6 +29,13 @@ class SetSessionTimeoutCommandTests {
     }
 
     @Test
+    fun accepts_int_values_via_lenient_converter() {
+        val result = runCommand(command, DataObject.create { put("session_timeout_seconds", 1800) })
+        assertTrue(result.isSuccess)
+        assertEquals(1_800_000L, firebase.lastSessionTimeoutMillis)
+    }
+
+    @Test
     fun missing_parameter_fails() {
         val result = runCommand(command, DataObject.create {})
         assertFalse(result.isSuccess)
