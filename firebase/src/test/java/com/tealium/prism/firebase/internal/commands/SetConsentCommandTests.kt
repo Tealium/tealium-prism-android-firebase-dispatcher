@@ -15,7 +15,7 @@ import org.junit.Test
 class SetConsentCommandTests {
 
     private val firebase = MockFirebaseAnalytics()
-    private val command = SetConsentCommand(firebase)
+    private val command = setConsentCommand(firebase)
 
     @Test
     fun forwards_known_consent_types_and_statuses() {

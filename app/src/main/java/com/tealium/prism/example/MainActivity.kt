@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.tealium.prism.core.api.Tealium
+import com.tealium.prism.core.api.data.DataItemUtils.asDataList
 import com.tealium.prism.core.api.data.DataList
 import com.tealium.prism.core.api.data.DataObject
 import com.tealium.prism.example.ui.theme.ExampleTheme
@@ -58,7 +58,6 @@ private fun DemoButtons(modifier: Modifier = Modifier) {
             .verticalScroll(scroll),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        // MARK: - LogEvent Command
         SectionHeader("LogEvent Command")
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::trackPurchase) { Text("Track Purchase Event") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::trackPurchaseLogEvent) { Text("Track Purchase Event (log_event)") }
@@ -66,74 +65,62 @@ private fun DemoButtons(modifier: Modifier = Modifier) {
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // MARK: - SetUserId Command
         SectionHeader("SetUserId Command")
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::setUserId) { Text("Set User ID") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::clearUserId) { Text("Clear User ID") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // MARK: - SetUserProperty Command
         SectionHeader("SetUserProperty Command")
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::setUserProperty) { Text("Set Property") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::clearUserProperty) { Text("Clear Property") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // MARK: - SetUserProperties Command
         SectionHeader("SetUserProperties Command")
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::setMultipleUserProperties) { Text("Set Multiple Properties") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::clearMultipleUserProperties) { Text("Clear Multiple Properties") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // MARK: - SetDefaultParameters Command
         SectionHeader("SetDefaultParameters Command")
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::setDefaultParameters) { Text("Set Default Params") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::clearDefaultParameters) { Text("Clear Default Params") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // MARK: - SetConsent Command
         SectionHeader("SetConsent Command")
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::grantAllConsent) { Text("Grant All Consent") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::denyAllConsent) { Text("Deny All Consent") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // MARK: - ResetData Command
         SectionHeader("ResetData Command")
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::resetAnalyticsData) { Text("Reset Firebase Data") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // MARK: - SetSessionTimeout Command
         SectionHeader("SetSessionTimeout Command")
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::updateSessionTimeout) { Text("Set to 1 Hour") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::resetSessionTimeout) { Text("Reset to Default (30 min)") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // MARK: - SetAnalyticsCollectionEnabled Command
         SectionHeader("SetAnalyticsCollectionEnabled")
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::toggleAnalyticsOn) { Text("Enable Analytics") }
         Button(modifier = Modifier.fillMaxWidth(), onClick = ::toggleAnalyticsOff) { Text("Disable Analytics") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // MARK: - Developer Tools
         SectionHeader("Developer Tools")
         val context = androidx.compose.ui.platform.LocalContext.current
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 if (tealiumStarted) {
-                    Tealium.shutdown("tealiummobile-firebase-test")
+                    TealiumHelper.shutdown()
                 } else {
-                    Tealium.create(
-                        ExampleApplication.buildConfig(context.applicationContext as android.app.Application),
-                        null
-                    )
+                    TealiumHelper.init(context.applicationContext as android.app.Application)
                 }
                 tealiumStarted = !tealiumStarted
             }
@@ -144,9 +131,7 @@ private fun DemoButtons(modifier: Modifier = Modifier) {
 }
 
 private fun track(event: String, data: DataObject = DataObject.create {}) {
-    Tealium.get("tealiummobile-firebase-test") { instance ->
-        instance?.track(event, data)
-    }
+    TealiumHelper.track(event, data)
 }
 
 private fun trackPurchase() = track(
@@ -157,10 +142,10 @@ private fun trackPurchase() = track(
         put("total", 249.97)
         put("currency", "USD")
         put("transaction_id", "TXN-2026-001")
-        put("product_ids", DataList.fromStringCollection(listOf("SKU-001", "SKU-002", "SKU-003")))
-        put("product_names", DataList.fromStringCollection(listOf("Widget", "Gadget", "Tool")))
-        put("prices", DataList.fromDoubleCollection(listOf(99.99, 79.99, 69.99)))
-        put("quantities", DataList.fromIntCollection(listOf(1, 2, 1)))
+        put("product_ids", listOf("SKU-001", "SKU-002", "SKU-003").asDataList())
+        put("product_names", listOf("Widget", "Gadget", "Tool").asDataList())
+        put("prices", listOf(99.99, 79.99, 69.99).asDataList())
+        put("quantities", listOf(1, 2, 1).asDataList())
     }
 )
 
@@ -172,10 +157,10 @@ private fun trackPurchaseLogEvent() = track(
         put("total", 249.97)
         put("currency", "USD")
         put("transaction_id", "TXN-2026-001")
-        put("product_ids", DataList.fromStringCollection(listOf("SKU-001", "SKU-002", "SKU-003")))
-        put("product_names", DataList.fromStringCollection(listOf("Widget", "Gadget", "Tool")))
-        put("prices", DataList.fromDoubleCollection(listOf(99.99, 79.99, 69.99)))
-        put("quantities", DataList.fromIntCollection(listOf(1, 2, 1)))
+        put("product_ids", listOf("SKU-001", "SKU-002", "SKU-003").asDataList())
+        put("product_names", listOf("Widget", "Gadget", "Tool").asDataList())
+        put("prices", listOf(99.99, 79.99, 69.99).asDataList())
+        put("quantities", listOf(1, 2, 1).asDataList())
     }
 )
 
@@ -291,8 +276,8 @@ private fun setMultipleUserProperties() = track(
     "set_user_property",
     DataObject.create {
         put("command_name", "setuserproperty")
-        put("property_name", DataList.fromStringCollection(listOf("tier", "level", "status")))
-        put("property_value", DataList.fromStringCollection(listOf("premium", "expert", "active")))
+        put("property_name", listOf("tier", "level", "status").asDataList())
+        put("property_value", listOf("premium", "expert", "active").asDataList())
     }
 )
 
@@ -300,8 +285,8 @@ private fun clearMultipleUserProperties() = track(
     "set_user_property",
     DataObject.create {
         put("command_name", "setuserproperty")
-        put("property_name", DataList.fromStringCollection(listOf("tier", "level", "status")))
-        put("property_value", DataList.fromStringCollection(listOf("", "", "")))
+        put("property_name", listOf("tier", "level", "status").asDataList())
+        put("property_value", listOf("", "", "").asDataList())
     }
 )
 

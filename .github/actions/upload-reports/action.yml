@@ -1,5 +1,5 @@
-name: "Compress and upload reports"
-description: "Compresses all reports, and uploads the artifacts"
+name: "Upload reports"
+description: "Uploads test report artifacts"
 
 inputs:
   artifact-name:
@@ -8,16 +8,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Compress Reports
-      continue-on-error: true
-      if: ${{ always() }}
-      shell: bash
-      run: ./gradlew compressReports
-
     - name: Upload Reports
       continue-on-error: true
       if: ${{ always() }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.artifact-name }}
-        path: reports/*.zip
+        path: "**/build/reports/**"
+        if-no-files-found: ignore

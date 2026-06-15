@@ -14,7 +14,7 @@ import org.junit.Test
 class SetUserPropertyCommandTests {
 
     private val firebase = MockFirebaseAnalytics()
-    private val command = SetUserPropertyCommand(firebase)
+    private val command = setUserPropertyCommand(firebase)
 
     @Test
     fun single_property_forwarded() {

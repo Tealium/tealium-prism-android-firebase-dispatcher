@@ -1,7 +1,5 @@
 package com.tealium.prism.firebase
 
-import java.util.Locale
-
 /**
  * Firebase internal log level.
  *
@@ -27,7 +25,7 @@ enum class FirebaseLogLevel(val rawValue: String) {
          * Returns the [FirebaseLogLevel] matching [value] (case-insensitive), or `null` if none.
          */
         fun fromString(value: String): FirebaseLogLevel? {
-            val normalized = value.lowercase(Locale.ROOT)
+            val normalized = value.lowercase()
             return entries.firstOrNull { it.rawValue == normalized }
         }
     }

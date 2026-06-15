@@ -3,13 +3,6 @@ package com.tealium.prism.firebase.internal.commands
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.tealium.prism.core.api.command.Command
 import com.tealium.prism.core.api.command.CommandException
-import com.tealium.prism.core.api.data.DataObject
-import com.tealium.prism.core.api.misc.Callback
-import com.tealium.prism.core.api.misc.TealiumResult
-import com.tealium.prism.core.api.misc.failure
-import com.tealium.prism.core.api.misc.success
-import com.tealium.prism.core.api.pubsub.Disposable
-import com.tealium.prism.core.api.pubsub.Disposables
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.ConsentConverter
@@ -38,51 +31,35 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * }
  * ```
  */
-internal class SetConsentCommand(
-    private val firebaseInstance: FirebaseAnalyticsInterface,
-) : Command {
+internal fun setConsentCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
+    Command.synchronous(FirebaseCommand.SET_CONSENT.commandName) { payload ->
+        val path = FirebaseDestination.ConsentSettings.asJsonObjectPath()
+        val consentDict = payload.extractDataObject(path)
+            ?: throw CommandException.missingParameter(path.toString())
 
-    override val name: String = FirebaseCommand.SET_CONSENT.commandName
-
-    override fun execute(
-        payload: DataObject,
-        callback: Callback<TealiumResult<Unit>>,
-    ): Disposable {
-        try {
-            val path = FirebaseDestination.ConsentSettings.asJsonObjectPath()
-            val consentDict = payload.extractDataObject(path)
-                ?: throw CommandException.missingParameter(path.toString())
-
-            val settings =
-                mutableMapOf<FirebaseAnalytics.ConsentType, FirebaseAnalytics.ConsentStatus>()
-            for ((key, value) in consentDict) {
-                val rawStatus = value.getString()
-                    ?: throw CommandException.invalidParameterType(
-                        "${path}.$key",
-                        "string consent status",
-                    )
-                val type = ConsentConverter.typeOrNull(key)
-                    ?: throw CommandException.invalidParameterType(
-                        "${path}.$key",
-                        "known consent type (ad_storage, analytics_storage, ad_user_data, ad_personalization)",
-                    )
-                val status = ConsentConverter.statusOrNull(rawStatus)
-                    ?: throw CommandException.invalidParameterType(
-                        "${path}.$key=$rawStatus",
-                        "known consent status (granted, denied)",
-                    )
-                settings[type] = status
-            }
-
-            if (settings.isEmpty()) {
-                throw CommandException.noValidParameters()
-            }
-
-            firebaseInstance.setConsent(settings)
-            callback.success(Unit)
-        } catch (t: Throwable) {
-            callback.failure(t)
+        val settings = mutableMapOf<FirebaseAnalytics.ConsentType, FirebaseAnalytics.ConsentStatus>()
+        for ((key, value) in consentDict) {
+            val rawStatus = value.getString()
+                ?: throw CommandException.invalidParameterType(
+                    "${path}.$key",
+                    "string consent status",
+                )
+            val type = ConsentConverter.typeOrNull(key)
+                ?: throw CommandException.invalidParameterType(
+                    "${path}.$key",
+                    "known consent type (ad_storage, analytics_storage, ad_user_data, ad_personalization)",
+                )
+            val status = ConsentConverter.statusOrNull(rawStatus)
+                ?: throw CommandException.invalidParameterType(
+                    "${path}.$key=$rawStatus",
+                    "known consent status (granted, denied)",
+                )
+            settings[type] = status
         }
-        return Disposables.disposed()
+
+        if (settings.isEmpty()) {
+            throw CommandException.noValidParameters()
+        }
+
+        firebaseInstance.setConsent(settings)
     }
-}

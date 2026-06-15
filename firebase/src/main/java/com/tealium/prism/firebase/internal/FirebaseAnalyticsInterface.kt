@@ -21,7 +21,7 @@ internal interface FirebaseAnalyticsInterface {
     fun setDefaultEventParameters(parameters: Bundle?)
 
     fun setConsent(
-        consentSettings: Map<FirebaseAnalytics.ConsentType, FirebaseAnalytics.ConsentStatus>,
+        consentSettings: Map<FirebaseAnalytics.ConsentType, FirebaseAnalytics.ConsentStatus>
     )
 
     fun setSessionTimeoutDuration(milliseconds: Long)

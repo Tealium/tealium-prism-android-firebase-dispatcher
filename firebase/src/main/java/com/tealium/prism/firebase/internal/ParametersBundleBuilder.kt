@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.tealium.prism.core.api.command.CommandException
 import com.tealium.prism.core.api.data.DataItem
+import com.tealium.prism.core.api.data.DataItemConverter
 import com.tealium.prism.core.api.data.DataList
 import com.tealium.prism.core.api.data.DataObject
 
@@ -21,10 +22,19 @@ import com.tealium.prism.core.api.data.DataObject
  *    the builder transposes them into a list of per-item bundles.
  *
  * Any array-length mismatch in shape (2) throws [CommandException.arrayLengthMismatch].
+ *
+ * Implements [DataItemConverter] so callers can extract parameters type-safely via
+ * `payload.extract(path, ParametersBundleBuilder)`.
  */
-internal object ParametersBundleBuilder {
+internal object ParametersBundleBuilder : DataItemConverter<Bundle> {
 
     private const val ITEMS_KEY = FirebaseAnalytics.Param.ITEMS
+
+    /**
+     * Converts the [dataItem] to a parameters [Bundle], or `null` when it is not a
+     * [DataObject] or the resulting bundle would be empty.
+     */
+    override fun convert(dataItem: DataItem): Bundle? = build(dataItem.getDataObject())
 
     /**
      * Builds a [Bundle] from the supplied [params] dictionary. Returns `null` when the

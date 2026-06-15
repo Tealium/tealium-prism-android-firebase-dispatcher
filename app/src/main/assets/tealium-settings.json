@@ -520,8 +520,7 @@
             "reference": { "key": "parameters" },
             "filter": { "value": "set_default_params" }
           }
-        },
-
+        }
       ]
     }
   }

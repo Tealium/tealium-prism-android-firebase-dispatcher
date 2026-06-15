@@ -12,7 +12,7 @@ class ResetDataCommandTests {
     @Test
     fun invokes_firebase_reset() {
         val firebase = MockFirebaseAnalytics()
-        val command = ResetDataCommand(firebase)
+        val command = resetDataCommand(firebase)
         val result = runCommand(command, DataObject.create {})
         assertTrue(result.isSuccess)
         assertEquals(1, firebase.resetAnalyticsDataCount)

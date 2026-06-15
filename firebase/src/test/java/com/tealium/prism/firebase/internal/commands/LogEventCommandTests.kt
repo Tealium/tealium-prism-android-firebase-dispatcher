@@ -20,7 +20,7 @@ import org.robolectric.RobolectricTestRunner
 class LogEventCommandTests {
 
     private val firebase = MockFirebaseAnalytics()
-    private val command = LogEventCommand(firebase)
+    private val command = logEventCommand(firebase)
 
     @Test
     fun forwards_event_without_parameters() {
@@ -231,10 +231,25 @@ class LogEventCommandTests {
     }
 
     @Test
-    fun missing_event_name_fails() {
+    fun missing_event_name_fails_with_missing_parameter() {
         val result = runCommand(command, DataObject.create {})
         assertFalse(result.isSuccess)
-        assertTrue(result.exceptionOrNull() is CommandException)
+        val exception = result.exceptionOrNull()
+        assertTrue(exception is CommandException)
+        assertTrue(exception!!.message!!.contains("missing"))
+        assertTrue(firebase.loggedEvents.isEmpty())
+    }
+
+    @Test
+    fun non_string_event_name_fails_with_invalid_parameter_type() {
+        val result = runCommand(
+            command,
+            DataObject.create { put("event_name", DataObject.create { put("nested", "value") }) },
+        )
+        assertFalse(result.isSuccess)
+        val exception = result.exceptionOrNull()
+        assertTrue(exception is CommandException)
+        assertTrue(exception!!.message!!.contains("expected type"))
         assertTrue(firebase.loggedEvents.isEmpty())
     }
 

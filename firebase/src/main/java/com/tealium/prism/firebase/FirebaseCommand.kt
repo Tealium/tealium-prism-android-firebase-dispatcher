@@ -1,10 +1,9 @@
 package com.tealium.prism.firebase
 
 import com.tealium.prism.core.api.command.CommandName
-import java.util.Locale
 
 /**
- * Type-safe Firebase Analytics commands for use with `FirebaseMappings.mapCommand(_:)`.
+ * Type-safe Firebase Analytics commands for use with [FirebaseMappings.mapCommand].
  *
  * [commandName] values match the payload strings used by the dispatcher
  * (all lowercase, no separators).
@@ -20,5 +19,5 @@ enum class FirebaseCommand : CommandName {
     SET_ANALYTICS_COLLECTION_ENABLED;
 
     override val commandName: String =
-        name.lowercase(Locale.ROOT).replace("_", "")
+        name.lowercase().replace("_", "")
 }

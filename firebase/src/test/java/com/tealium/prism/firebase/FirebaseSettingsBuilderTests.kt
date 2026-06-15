@@ -33,25 +33,14 @@ class FirebaseSettingsBuilderTests {
     }
 
     @Test
-    fun setLogLevel_stores_raw_string_in_configuration() {
-        val built = FirebaseSettingsBuilder()
-            .setLogLevel(FirebaseLogLevel.DEBUG)
-            .build()
-        val cfg = built.getDataObject("configuration")!!
-        assertEquals("debug", cfg.getString(FirebaseDispatcherConfiguration.KEY_LOG_LEVEL))
-    }
-
-    @Test
     fun all_settings_stored_together_in_configuration() {
         val built = FirebaseSettingsBuilder()
             .setSessionTimeout(TimeFrame(30, TimeUnit.MINUTES))
             .setAnalyticsEnabled(true)
-            .setLogLevel(FirebaseLogLevel.DEBUG)
             .build()
         val cfg = built.getDataObject("configuration")!!
         assertEquals(1_800L, cfg.getLong(FirebaseDispatcherConfiguration.KEY_SESSION_TIMEOUT))
         assertEquals(true, cfg.getBoolean(FirebaseDispatcherConfiguration.KEY_ANALYTICS_ENABLED))
-        assertEquals("debug", cfg.getString(FirebaseDispatcherConfiguration.KEY_LOG_LEVEL))
     }
 
     @Test
@@ -60,6 +49,5 @@ class FirebaseSettingsBuilderTests {
         val cfg = built.getDataObject("configuration")!!
         assertEquals(null, cfg.getString(FirebaseDispatcherConfiguration.KEY_SESSION_TIMEOUT))
         assertEquals(null, cfg.getBoolean(FirebaseDispatcherConfiguration.KEY_ANALYTICS_ENABLED))
-        assertEquals(null, cfg.getString(FirebaseDispatcherConfiguration.KEY_LOG_LEVEL))
     }
 }

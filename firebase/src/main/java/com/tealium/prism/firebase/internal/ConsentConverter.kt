@@ -2,7 +2,6 @@ package com.tealium.prism.firebase.internal
 
 import com.google.firebase.analytics.FirebaseAnalytics.ConsentStatus
 import com.google.firebase.analytics.FirebaseAnalytics.ConsentType
-import java.util.Locale
 
 /**
  * Bidirectional mapping between consent string values and the Firebase Android enums.
@@ -29,11 +28,11 @@ internal object ConsentConverter {
     )
 
     fun typeOrNull(raw: String): ConsentType? =
-        typeByRaw[raw.lowercase(Locale.ROOT)]
+        typeByRaw[raw.lowercase()]
 
     fun statusOrNull(raw: String): ConsentStatus? =
-        statusByRaw[raw.lowercase(Locale.ROOT)]
+        statusByRaw[raw.lowercase()]
 
     fun rawValue(type: ConsentType): String =
-        rawByType[type] ?: type.name.lowercase(Locale.ROOT)
+        rawByType[type] ?: type.name.lowercase()
 }

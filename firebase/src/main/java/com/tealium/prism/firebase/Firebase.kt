@@ -34,7 +34,7 @@ object Firebase {
     @JvmStatic
     @JvmOverloads
     fun configure(
-        enforcedSettings: ((FirebaseSettingsBuilder) -> FirebaseSettingsBuilder)? = { it },
+        enforcedSettings: ((FirebaseSettingsBuilder) -> FirebaseSettingsBuilder)? = { it }
     ): ModuleFactory {
         val builder = enforcedSettings?.invoke(FirebaseSettingsBuilder())
         return FirebaseDispatcher.Factory(builder?.build())
@@ -54,7 +54,7 @@ val DEFAULT_FACTORY: ModuleFactory = Firebase.configure(null)
  */
 @JvmOverloads
 fun Modules.firebase(
-    enforcedSettings: ((FirebaseSettingsBuilder) -> FirebaseSettingsBuilder)? = { it },
+    enforcedSettings: ((FirebaseSettingsBuilder) -> FirebaseSettingsBuilder)? = { it }
 ): ModuleFactory = Firebase.configure(enforcedSettings)
 
 /**

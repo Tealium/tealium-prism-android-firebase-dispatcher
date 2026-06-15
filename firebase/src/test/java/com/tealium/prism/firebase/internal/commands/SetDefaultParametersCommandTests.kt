@@ -15,7 +15,7 @@ import org.robolectric.RobolectricTestRunner
 class SetDefaultParametersCommandTests {
 
     private val firebase = MockFirebaseAnalytics()
-    private val command = SetDefaultParametersCommand(firebase)
+    private val command = setDefaultParametersCommand(firebase)
 
     @Test
     fun builds_bundle_from_parameters() {

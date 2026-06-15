@@ -13,7 +13,7 @@ import org.junit.Test
 class SetUserIdCommandTests {
 
     private val firebase = MockFirebaseAnalytics()
-    private val command = SetUserIdCommand(firebase)
+    private val command = setUserIdCommand(firebase)
 
     @Test
     fun forwards_string_to_firebase() {
@@ -32,10 +32,25 @@ class SetUserIdCommandTests {
     }
 
     @Test
-    fun missing_parameter_fails() {
+    fun missing_parameter_fails_with_missing_parameter() {
         val result = runCommand(command, DataObject.create {})
         assertFalse(result.isSuccess)
-        assertTrue(result.exceptionOrNull() is CommandException)
+        val exception = result.exceptionOrNull()
+        assertTrue(exception is CommandException)
+        assertTrue(exception!!.message!!.contains("missing"))
+        assertEquals(0, firebase.setUserIdCount)
+    }
+
+    @Test
+    fun non_string_value_fails_with_invalid_parameter_type() {
+        val result = runCommand(
+            command,
+            DataObject.create { put("user_id", DataObject.create { put("nested", "value") }) },
+        )
+        assertFalse(result.isSuccess)
+        val exception = result.exceptionOrNull()
+        assertTrue(exception is CommandException)
+        assertTrue(exception!!.message!!.contains("expected type"))
         assertEquals(0, firebase.setUserIdCount)
     }
 

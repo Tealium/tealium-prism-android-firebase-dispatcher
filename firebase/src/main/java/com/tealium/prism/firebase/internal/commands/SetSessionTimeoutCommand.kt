@@ -2,14 +2,7 @@ package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.Command
 import com.tealium.prism.core.api.command.CommandException
-import com.tealium.prism.core.api.data.DataObject
 import com.tealium.prism.core.api.data.LenientConverters
-import com.tealium.prism.core.api.misc.Callback
-import com.tealium.prism.core.api.misc.TealiumResult
-import com.tealium.prism.core.api.misc.failure
-import com.tealium.prism.core.api.misc.success
-import com.tealium.prism.core.api.pubsub.Disposable
-import com.tealium.prism.core.api.pubsub.Disposables
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -30,30 +23,16 @@ import com.tealium.prism.firebase.internal.FirebaseConstants
  * }
  * ```
  */
-internal class SetSessionTimeoutCommand(
-    private val firebaseInstance: FirebaseAnalyticsInterface,
-) : Command {
-
-    override val name: String = FirebaseCommand.SET_SESSION_TIMEOUT.commandName
-
-    override fun execute(
-        payload: DataObject,
-        callback: Callback<TealiumResult<Unit>>,
-    ): Disposable {
-        try {
-            val path = FirebaseDestination.SessionTimeout.asJsonObjectPath()
-            val seconds = payload.extract(path, LenientConverters.DOUBLE)
-                ?: throw CommandException.invalidParameterType(
-                    path.toString(),
-                    "numeric value (seconds)",
-                )
-            val millis = (seconds * FirebaseConstants.MILLISECONDS_PER_SECOND).toLong()
-            firebaseInstance.setSessionTimeoutDuration(millis)
-            callback.success(Unit)
-        } catch (t: Throwable) {
-            callback.failure(t)
-        }
-        return Disposables.disposed()
+internal fun setSessionTimeoutCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
+    Command.synchronous(FirebaseCommand.SET_SESSION_TIMEOUT.commandName) { payload ->
+        val path = FirebaseDestination.SessionTimeout.asJsonObjectPath()
+        val secondsItem = payload.extract(path)
+            ?: throw CommandException.missingParameter(path.toString())
+        val seconds = LenientConverters.DOUBLE.convert(secondsItem)
+            ?: throw CommandException.invalidParameterType(
+                path.toString(),
+                "numeric value (seconds)",
+            )
+        val millis = (seconds * FirebaseConstants.MILLISECONDS_PER_SECOND).toLong()
+        firebaseInstance.setSessionTimeoutDuration(millis)
     }
-
-}

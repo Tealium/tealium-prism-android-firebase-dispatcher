@@ -9,14 +9,14 @@ import com.tealium.prism.core.api.modules.Module
 import com.tealium.prism.core.api.modules.ModuleFactory
 import com.tealium.prism.core.api.modules.TealiumContext
 import com.tealium.prism.firebase.Firebase
-import com.tealium.prism.firebase.internal.commands.LogEventCommand
-import com.tealium.prism.firebase.internal.commands.ResetDataCommand
-import com.tealium.prism.firebase.internal.commands.SetAnalyticsCollectionEnabledCommand
-import com.tealium.prism.firebase.internal.commands.SetConsentCommand
-import com.tealium.prism.firebase.internal.commands.SetDefaultParametersCommand
-import com.tealium.prism.firebase.internal.commands.SetSessionTimeoutCommand
-import com.tealium.prism.firebase.internal.commands.SetUserIdCommand
-import com.tealium.prism.firebase.internal.commands.SetUserPropertyCommand
+import com.tealium.prism.firebase.internal.commands.logEventCommand
+import com.tealium.prism.firebase.internal.commands.resetDataCommand
+import com.tealium.prism.firebase.internal.commands.setAnalyticsCollectionEnabledCommand
+import com.tealium.prism.firebase.internal.commands.setConsentCommand
+import com.tealium.prism.firebase.internal.commands.setDefaultParametersCommand
+import com.tealium.prism.firebase.internal.commands.setSessionTimeoutCommand
+import com.tealium.prism.firebase.internal.commands.setUserIdCommand
+import com.tealium.prism.firebase.internal.commands.setUserPropertyCommand
 
 /**
  * Firebase Analytics Dispatcher for the Tealium Prism SDK.
@@ -33,14 +33,14 @@ internal class FirebaseDispatcher(
     id = Firebase.ID,
     version = FirebaseConstants.VERSION,
     commands = listOf(
-        SetSessionTimeoutCommand(firebaseInstance),
-        SetAnalyticsCollectionEnabledCommand(firebaseInstance),
-        LogEventCommand(firebaseInstance),
-        SetUserPropertyCommand(firebaseInstance),
-        SetDefaultParametersCommand(firebaseInstance),
-        SetUserIdCommand(firebaseInstance),
-        ResetDataCommand(firebaseInstance),
-        SetConsentCommand(firebaseInstance),
+        setSessionTimeoutCommand(firebaseInstance),
+        setAnalyticsCollectionEnabledCommand(firebaseInstance),
+        logEventCommand(firebaseInstance),
+        setUserPropertyCommand(firebaseInstance),
+        setDefaultParametersCommand(firebaseInstance),
+        setUserIdCommand(firebaseInstance),
+        resetDataCommand(firebaseInstance),
+        setConsentCommand(firebaseInstance),
     ),
     logger = logger,
     logCategory = Firebase.ID,
@@ -52,27 +52,27 @@ internal class FirebaseDispatcher(
     }
 
     override fun updateConfiguration(configuration: DataObject): Module {
-        val cfg = FirebaseDispatcherConfiguration.fromDataObject(configuration)
-        this.configuration = cfg
-        applySettings(cfg)
+        val config = FirebaseDispatcherConfiguration.fromDataObject(configuration)
+        this.configuration = config
+        applySettings(config)
         return this
     }
 
-    private fun applySettings(cfg: FirebaseDispatcherConfiguration) {
+    private fun applySettings(config: FirebaseDispatcherConfiguration) {
         logger.logIfDebugEnabled(logCategory) { "Applying configuration settings" }
-        cfg.logLevel?.let {
+        config.logLevel?.let {
             logger.logIfDebugEnabled(logCategory) {
                 "log_level config key has no effect on Android"
             }
         }
-        cfg.sessionTimeoutSeconds?.let { seconds ->
+        config.sessionTimeoutSeconds?.let { seconds ->
             val millis = (seconds * FirebaseConstants.MILLISECONDS_PER_SECOND).toLong()
             firebaseInstance.setSessionTimeoutDuration(millis)
             logger.logIfDebugEnabled(logCategory) {
                 "Session timeout set to $seconds seconds from configuration"
             }
         }
-        cfg.analyticsCollectionEnabled?.let { enabled ->
+        config.analyticsCollectionEnabled?.let { enabled ->
             firebaseInstance.setAnalyticsCollectionEnabled(enabled)
             logger.logIfDebugEnabled(logCategory) {
                 "Analytics collection enabled: $enabled from configuration"
@@ -81,7 +81,7 @@ internal class FirebaseDispatcher(
     }
 
     class Factory(
-        enforcedSettings: DataObject? = null,
+        enforcedSettings: DataObject? = null
     ) : ModuleFactory {
 
         private val enforcedList: List<DataObject> =

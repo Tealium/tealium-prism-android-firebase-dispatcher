@@ -14,7 +14,7 @@ import com.tealium.prism.firebase.internal.ConsentConverter
  */
 sealed class FirebaseDestination : JsonObjectPathConvertible {
 
-    // MARK: LogEvent
+    // LogEvent
 
     /** The event name parameter (`"event_name"`). */
     object EventName : FirebaseDestination()
@@ -38,12 +38,12 @@ sealed class FirebaseDestination : JsonObjectPathConvertible {
      */
     data class ItemParam(val param: String) : FirebaseDestination()
 
-    // MARK: SetUserId
+    // SetUserId
 
     /** The user ID parameter (`"user_id"`). */
     object UserId : FirebaseDestination()
 
-    // MARK: SetUserProperty
+    // SetUserProperty
 
     /** The user property name(s) parameter (`"property_name"`). */
     object UserPropertyName : FirebaseDestination()
@@ -51,7 +51,7 @@ sealed class FirebaseDestination : JsonObjectPathConvertible {
     /** The user property value(s) parameter (`"property_value"`). */
     object UserPropertyValue : FirebaseDestination()
 
-    // MARK: SetDefaultParameters
+    // SetDefaultParameters
 
     /** The default parameters dictionary (`"parameters"`). */
     object DefaultParams : FirebaseDestination()
@@ -59,7 +59,7 @@ sealed class FirebaseDestination : JsonObjectPathConvertible {
     /** A specific default parameter nested under `parameters.[name]`. */
     data class DefaultParam(val name: String) : FirebaseDestination()
 
-    // MARK: SetConsent
+    // SetConsent
 
     /** The consent settings dictionary (`"consent_settings"`). */
     object ConsentSettings : FirebaseDestination()
@@ -67,12 +67,12 @@ sealed class FirebaseDestination : JsonObjectPathConvertible {
     /** A specific consent setting nested under `consent_settings.[type]`. */
     data class ConsentSetting(val type: FirebaseAnalytics.ConsentType) : FirebaseDestination()
 
-    // MARK: SetSessionTimeout
+    // SetSessionTimeout
 
     /** The session timeout parameter (`"session_timeout_seconds"`). */
     object SessionTimeout : FirebaseDestination()
 
-    // MARK: SetAnalyticsCollectionEnabled
+    // SetAnalyticsCollectionEnabled
 
     /** The analytics enabled parameter (`"analytics_collection_enabled"`). */
     object AnalyticsEnabled : FirebaseDestination()

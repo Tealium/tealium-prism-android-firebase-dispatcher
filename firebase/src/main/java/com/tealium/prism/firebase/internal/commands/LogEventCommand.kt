@@ -2,14 +2,7 @@ package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.Command
 import com.tealium.prism.core.api.command.CommandException
-import com.tealium.prism.core.api.data.DataObject
 import com.tealium.prism.core.api.data.LenientConverters
-import com.tealium.prism.core.api.misc.Callback
-import com.tealium.prism.core.api.misc.TealiumResult
-import com.tealium.prism.core.api.misc.failure
-import com.tealium.prism.core.api.misc.success
-import com.tealium.prism.core.api.pubsub.Disposable
-import com.tealium.prism.core.api.pubsub.Disposables
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -53,28 +46,14 @@ import com.tealium.prism.firebase.internal.ParametersBundleBuilder
  * }
  * ```
  */
-internal class LogEventCommand(
-    private val firebaseInstance: FirebaseAnalyticsInterface,
-) : Command {
-
-    override val name: String = FirebaseCommand.LOG_EVENT.commandName
-
-    override fun execute(
-        payload: DataObject,
-        callback: Callback<TealiumResult<Unit>>,
-    ): Disposable {
-        try {
-            val eventNamePath = FirebaseDestination.EventName.asJsonObjectPath()
-            val eventName = payload.extract(eventNamePath, LenientConverters.STRING)
-                ?: throw CommandException.missingParameter(eventNamePath.toString())
-            val paramsPath = FirebaseDestination.EventParams.asJsonObjectPath()
-            val paramsDict = payload.extractDataObject(paramsPath)
-            val bundle = ParametersBundleBuilder.build(paramsDict)
-            firebaseInstance.logEvent(eventName, bundle)
-            callback.success(Unit)
-        } catch (t: Throwable) {
-            callback.failure(t)
-        }
-        return Disposables.disposed()
+internal fun logEventCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
+    Command.synchronous(FirebaseCommand.LOG_EVENT.commandName) { payload ->
+        val eventNamePath = FirebaseDestination.EventName.asJsonObjectPath()
+        val eventNameItem = payload.extract(eventNamePath)
+            ?: throw CommandException.missingParameter(eventNamePath.toString())
+        val eventName = LenientConverters.STRING.convert(eventNameItem)
+            ?: throw CommandException.invalidParameterType(eventNamePath.toString(), "string")
+        val paramsPath = FirebaseDestination.EventParams.asJsonObjectPath()
+        val bundle = payload.extract(paramsPath, ParametersBundleBuilder)
+        firebaseInstance.logEvent(eventName, bundle)
     }
-}

@@ -38,7 +38,7 @@ internal class FirebaseInstance(context: Context) : FirebaseAnalyticsInterface {
     }
 
     override fun setConsent(
-        consentSettings: Map<FirebaseAnalytics.ConsentType, FirebaseAnalytics.ConsentStatus>,
+        consentSettings: Map<FirebaseAnalytics.ConsentType, FirebaseAnalytics.ConsentStatus>
     ) {
         firebaseAnalytics.setConsent(consentSettings)
     }

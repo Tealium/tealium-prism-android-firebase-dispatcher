@@ -48,14 +48,4 @@ class FirebaseSettingsBuilder :
     fun setAnalyticsEnabled(enabled: Boolean) = apply {
         configuration.put(FirebaseDispatcherConfiguration.KEY_ANALYTICS_ENABLED, enabled)
     }
-
-    /**
-     * Set the Firebase log level.
-     *
-     * No-op on Android — Firebase log level is not configurable via the Analytics API.
-     * Accepted for cross-platform config parity with iOS.
-     */
-    fun setLogLevel(logLevel: FirebaseLogLevel) = apply {
-        configuration.put(FirebaseDispatcherConfiguration.KEY_LOG_LEVEL, logLevel.rawValue)
-    }
 }
