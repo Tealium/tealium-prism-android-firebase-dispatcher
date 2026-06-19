@@ -60,11 +60,6 @@ internal class FirebaseDispatcher(
 
     private fun applySettings(config: FirebaseDispatcherConfiguration) {
         logger.logIfDebugEnabled(logCategory) { "Applying configuration settings" }
-        config.logLevel?.let {
-            logger.logIfDebugEnabled(logCategory) {
-                "log_level config key has no effect on Android"
-            }
-        }
         config.sessionTimeoutSeconds?.let { seconds ->
             val millis = (seconds * FirebaseConstants.MILLISECONDS_PER_SECOND).toLong()
             firebaseInstance.setSessionTimeoutDuration(millis)
