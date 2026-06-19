@@ -7,6 +7,8 @@ import com.tealium.prism.core.api.data.DataItem
 import com.tealium.prism.core.api.data.DataItemConverter
 import com.tealium.prism.core.api.data.DataList
 import com.tealium.prism.core.api.data.DataObject
+import com.tealium.prism.core.api.data.mapValues
+import com.tealium.prism.core.api.data.mapValuesNotNull
 
 /**
  * Converts Tealium [DataObject] payloads into Firebase-compatible [Bundle]s.
@@ -74,20 +76,17 @@ internal object ParametersBundleBuilder : DataItemConverter<Bundle> {
     }
 
     private fun buildFromParallelArrays(dict: DataObject): List<Bundle> {
-        val arrays = LinkedHashMap<String, DataList>()
-        for ((k, v) in dict) {
-            v.getDataList()?.let { arrays[k] = it }
-        }
+        val arrays = dict.mapValuesNotNull(DataItem::getDataList)
         if (arrays.isEmpty()) return emptyList()
 
         val referenceKey = arrays.keys.first()
         val referenceSize = arrays.getValue(referenceKey).size
 
-        for ((key, array) in arrays) {
-            if (array.size != referenceSize) {
-                throw CommandException.arrayLengthMismatch(referenceKey, key)
-            }
+        val mismatchedSizes = arrays.filter { it.value.size != referenceSize }
+        if (mismatchedSizes.isNotEmpty()) {
+            throw CommandException.arrayLengthMismatch(referenceKey, mismatchedSizes.keys.joinToString())
         }
+
         if (referenceSize == 0) return emptyList()
 
         val items = ArrayList<Bundle>(referenceSize)
@@ -103,13 +102,13 @@ internal object ParametersBundleBuilder : DataItemConverter<Bundle> {
     }
 
     private fun putScalar(bundle: Bundle, key: String, item: DataItem) {
-        when {
-            item.isString() -> bundle.putString(key, item.getString())
-            item.isBoolean() -> bundle.putBoolean(key, item.getBoolean()!!)
-            item.isLong() -> bundle.putLong(key, item.getLong()!!)
-            item.isInt() -> bundle.putInt(key, item.getInt()!!)
-            item.isDouble() -> bundle.putDouble(key, item.getDouble()!!)
-            item.isNumber() -> item.getDouble()?.let { bundle.putDouble(key, it) }
+        when(val value = item.value) {
+            is String -> bundle.putString(key, value)
+            is Boolean -> bundle.putBoolean(key, value)
+            is Long -> bundle.putLong(key, value)
+            is Int -> bundle.putInt(key, value)
+            is Double -> bundle.putDouble(key, value)
+            is Number -> bundle.putDouble(key, value.toDouble())
         }
     }
 }
