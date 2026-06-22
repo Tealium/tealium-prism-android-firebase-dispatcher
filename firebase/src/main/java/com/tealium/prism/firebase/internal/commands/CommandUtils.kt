@@ -9,7 +9,7 @@ import com.tealium.prism.core.api.data.DataObject
 import com.tealium.prism.core.api.data.JsonObjectPathConvertible
 import com.tealium.prism.core.api.data.LenientConverters
 
-// TODO - move all these into `prism-core` for future Commands to use
+// TODO - move all these into `prism-core` for future Commands to use, and remove `internal` modifier
 
 /**
  * Convenience method to create a Synchronous [Command] using its [CommandName]
@@ -17,7 +17,7 @@ import com.tealium.prism.core.api.data.LenientConverters
  * @param commandName The name of the command to create
  * @param block The handler for the command
  */
-fun synchronous(commandName: CommandName, block: (DataObject) -> Unit) =
+internal fun synchronous(commandName: CommandName, block: (DataObject) -> Unit) =
     Command.synchronous(commandName.commandName, block)
 
 // Section: extract JsonObjectPathConvertible
@@ -28,7 +28,7 @@ fun synchronous(commandName: CommandName, block: (DataObject) -> Unit) =
  * @param path The path to extract the [DataObject] from
  * @param converter The converter required to create [T] from [DataItem]
  */
-fun <T> DataObject.extract(path: JsonObjectPathConvertible, converter: DataItemConverter<T>): T? =
+internal fun <T> DataObject.extract(path: JsonObjectPathConvertible, converter: DataItemConverter<T>): T? =
     extract(path.asJsonObjectPath(), converter)
 
 /**
@@ -36,7 +36,7 @@ fun <T> DataObject.extract(path: JsonObjectPathConvertible, converter: DataItemC
  *
  * @param path The path to extract the [DataObject] from
  */
-fun DataObject.extractDataObject(path: JsonObjectPathConvertible) =
+internal fun DataObject.extractDataObject(path: JsonObjectPathConvertible) =
     extract(path.asJsonObjectPath(), DataItem::getDataObject)
 
 
@@ -48,12 +48,12 @@ fun DataObject.extractDataObject(path: JsonObjectPathConvertible) =
  *
  * If no value exists at the given [path], then [CommandException.missingParameter] is thrown.
  *
- * If the value does exist at the given [path] but cannot be converted to a [String] then
+ * If the value does exist at the given [path] but cannot be converted to [T] then
  * [CommandException.invalidParameterType] is thrown.
  *
- * @return The retrieved or converted [String] value,
+ * @return The retrieved or converted value,
  */
-fun <T> DataObject.require(path: JsonObjectPathConvertible, converter: DataItemConverter<T>, expectedType: String): T {
+internal fun <T> DataObject.require(path: JsonObjectPathConvertible, converter: DataItemConverter<T>, expectedType: String): T {
     val jsonPath = path.asJsonObjectPath()
 
     val extractedItem = extract(jsonPath)
@@ -76,7 +76,7 @@ fun <T> DataObject.require(path: JsonObjectPathConvertible, converter: DataItemC
  */
 @Throws(CommandException::class)
 @JvmOverloads
-fun DataObject.requireString(path: JsonObjectPathConvertible, converter: DataItemConverter<String> = LenientConverters.STRING): String =
+internal fun DataObject.requireString(path: JsonObjectPathConvertible, converter: DataItemConverter<String> = LenientConverters.STRING): String =
     require(path, converter, "String")
 
 /**
@@ -92,7 +92,7 @@ fun DataObject.requireString(path: JsonObjectPathConvertible, converter: DataIte
  */
 @Throws(CommandException::class)
 @JvmOverloads
-fun DataObject.requireBoolean(path: JsonObjectPathConvertible, converter: DataItemConverter<Boolean> = LenientConverters.BOOLEAN): Boolean =
+internal fun DataObject.requireBoolean(path: JsonObjectPathConvertible, converter: DataItemConverter<Boolean> = LenientConverters.BOOLEAN): Boolean =
     require(path, converter, "boolean (true/false)")
 
 /**
@@ -108,7 +108,7 @@ fun DataObject.requireBoolean(path: JsonObjectPathConvertible, converter: DataIt
  */
 @Throws(CommandException::class)
 @JvmOverloads
-fun DataObject.requireDouble(path: JsonObjectPathConvertible, converter: DataItemConverter<Double> = LenientConverters.DOUBLE): Double =
+internal fun DataObject.requireDouble(path: JsonObjectPathConvertible, converter: DataItemConverter<Double> = LenientConverters.DOUBLE): Double =
     require(path, converter, "numeric value")
 
 
