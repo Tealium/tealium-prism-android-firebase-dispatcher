@@ -26,8 +26,7 @@ import com.tealium.prism.firebase.internal.ParametersBundleBuilder
  * ```
  */
 internal fun setDefaultParametersCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    Command.synchronous(FirebaseCommand.SET_DEFAULT_PARAMETERS.commandName) { payload ->
-        val path = FirebaseDestination.DefaultParams.asJsonObjectPath()
-        val bundle = payload.extract(path, ParametersBundleBuilder)
+    synchronous(FirebaseCommand.SET_DEFAULT_PARAMETERS) { payload ->
+        val bundle = payload.extract(FirebaseDestination.DefaultParams, ParametersBundleBuilder)
         firebaseInstance.setDefaultEventParameters(bundle)
     }

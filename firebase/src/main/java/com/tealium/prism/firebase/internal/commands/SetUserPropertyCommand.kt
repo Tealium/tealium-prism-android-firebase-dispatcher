@@ -33,7 +33,7 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * ```
  */
 internal fun setUserPropertyCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    Command.synchronous(FirebaseCommand.SET_USER_PROPERTY.commandName) { payload ->
+    synchronous(FirebaseCommand.SET_USER_PROPERTY) { payload ->
         val namesPath = FirebaseDestination.UserPropertyName.asJsonObjectPath()
         val valuesPath = FirebaseDestination.UserPropertyValue.asJsonObjectPath()
         val namesItem = payload.extract(namesPath)

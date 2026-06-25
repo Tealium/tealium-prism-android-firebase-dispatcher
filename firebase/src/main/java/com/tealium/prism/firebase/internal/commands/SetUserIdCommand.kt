@@ -1,8 +1,6 @@
 package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.Command
-import com.tealium.prism.core.api.command.CommandException
-import com.tealium.prism.core.api.data.LenientConverters
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -22,11 +20,7 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * ```
  */
 internal fun setUserIdCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    Command.synchronous(FirebaseCommand.SET_USER_ID.commandName) { payload ->
-        val path = FirebaseDestination.UserId.asJsonObjectPath()
-        val userIdItem = payload.extract(path)
-            ?: throw CommandException.missingParameter(path.toString())
-        val userId = LenientConverters.STRING.convert(userIdItem)
-            ?: throw CommandException.invalidParameterType(path.toString(), "string")
+    synchronous(FirebaseCommand.SET_USER_ID) { payload ->
+        val userId = payload.requireString(FirebaseDestination.UserId)
         firebaseInstance.setUserId(userId.ifEmpty { null })
     }

@@ -1,8 +1,6 @@
 package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.Command
-import com.tealium.prism.core.api.command.CommandException
-import com.tealium.prism.core.api.data.LenientConverters
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -47,13 +45,9 @@ import com.tealium.prism.firebase.internal.ParametersBundleBuilder
  * ```
  */
 internal fun logEventCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    Command.synchronous(FirebaseCommand.LOG_EVENT.commandName) { payload ->
-        val eventNamePath = FirebaseDestination.EventName.asJsonObjectPath()
-        val eventNameItem = payload.extract(eventNamePath)
-            ?: throw CommandException.missingParameter(eventNamePath.toString())
-        val eventName = LenientConverters.STRING.convert(eventNameItem)
-            ?: throw CommandException.invalidParameterType(eventNamePath.toString(), "string")
-        val paramsPath = FirebaseDestination.EventParams.asJsonObjectPath()
-        val bundle = payload.extract(paramsPath, ParametersBundleBuilder)
+    synchronous(FirebaseCommand.LOG_EVENT) { payload ->
+        val eventName = payload.requireString(FirebaseDestination.EventName)
+        val bundle = payload.extract(FirebaseDestination.EventParams, ParametersBundleBuilder)
+
         firebaseInstance.logEvent(eventName, bundle)
     }

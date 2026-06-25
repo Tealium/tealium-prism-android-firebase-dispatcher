@@ -32,7 +32,7 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * ```
  */
 internal fun setConsentCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    Command.synchronous(FirebaseCommand.SET_CONSENT.commandName) { payload ->
+    synchronous(FirebaseCommand.SET_CONSENT) { payload ->
         val path = FirebaseDestination.ConsentSettings.asJsonObjectPath()
         val consentDict = payload.extractDataObject(path)
             ?: throw CommandException.missingParameter(path.toString())
