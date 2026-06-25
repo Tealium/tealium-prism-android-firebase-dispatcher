@@ -23,7 +23,7 @@ internal fun synchronous(commandName: CommandName, block: (DataObject) -> Unit) 
 // Section: extract JsonObjectPathConvertible
 
 /**
- * Convenience method to extract a [T] at the given [path] using the given [converter]
+ * Convenience method to extract a [T] from this [DataObject] at the given [path] using the given [converter]
  *
  * @param path The path to extract the [DataObject] from
  * @param converter The converter required to create [T] from [DataItem]
@@ -32,7 +32,7 @@ internal fun <T> DataObject.extract(path: JsonObjectPathConvertible, converter: 
     extract(path.asJsonObjectPath(), converter)
 
 /**
- * Convenience method to extract a [DataObject] at the given [path]
+ * Convenience method to extract a [DataObject] from this [DataObject] at the given [path]
  *
  * @param path The path to extract the [DataObject] from
  */
@@ -51,7 +51,7 @@ internal fun DataObject.extractDataObject(path: JsonObjectPathConvertible) =
  * If the value does exist at the given [path] but cannot be converted to [T] then
  * [CommandException.invalidParameterType] is thrown.
  *
- * @return The retrieved or converted value,
+ * @return The retrieved or converted value
  */
 internal fun <T> DataObject.require(path: JsonObjectPathConvertible, converter: DataItemConverter<T>, expectedType: String): T {
     val jsonPath = path.asJsonObjectPath()
@@ -72,7 +72,7 @@ internal fun <T> DataObject.require(path: JsonObjectPathConvertible, converter: 
  * If the value does exist at the given [path] but cannot be converted to a [String] then
  * [CommandException.invalidParameterType] is thrown.
  *
- * @return The retrieved or converted [String] value,
+ * @return The retrieved or converted [String] value
  */
 @Throws(CommandException::class)
 @JvmOverloads
@@ -88,7 +88,7 @@ internal fun DataObject.requireString(path: JsonObjectPathConvertible, converter
  * If the value does exist at the given [path] but cannot be converted to a [Boolean] then
  * [CommandException.invalidParameterType] is thrown.
  *
- * @return The retrieved or converted [Boolean] value,
+ * @return The retrieved or converted [Boolean] value
  */
 @Throws(CommandException::class)
 @JvmOverloads
@@ -104,7 +104,7 @@ internal fun DataObject.requireBoolean(path: JsonObjectPathConvertible, converte
  * If the value does exist at the given [path] but cannot be converted to a [Double] then
  * [CommandException.invalidParameterType] is thrown.
  *
- * @return The retrieved or converted [Double] value,
+ * @return The retrieved or converted [Double] value
  */
 @Throws(CommandException::class)
 @JvmOverloads
