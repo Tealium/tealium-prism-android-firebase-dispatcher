@@ -8,16 +8,15 @@ import com.tealium.prism.core.api.command.CommandName
  * [commandName] values match the payload strings used by the dispatcher
  * (all lowercase, no separators).
  */
-enum class FirebaseCommand : CommandName {
-    LOG_EVENT,
-    SET_USER_ID,
-    SET_USER_PROPERTY,
-    RESET_DATA,
-    SET_DEFAULT_PARAMETERS,
-    SET_CONSENT,
-    SET_SESSION_TIMEOUT,
-    SET_ANALYTICS_COLLECTION_ENABLED;
-
-    override val commandName: String =
-        name.lowercase().replace("_", "")
+enum class FirebaseCommand(
+    override val commandName: String
+) : CommandName {
+    LOG_EVENT("logevent"),
+    SET_USER_ID("setuserid"),
+    SET_USER_PROPERTY("setuserproperty"),
+    RESET_DATA("resetdata"),
+    SET_DEFAULT_PARAMETERS("setdefaultparameters"),
+    SET_CONSENT("setconsent"),
+    SET_SESSION_TIMEOUT("setsessiontimeout"),
+    SET_ANALYTICS_COLLECTION_ENABLED("setanalyticscollectionenabled");
 }

@@ -11,7 +11,7 @@ Full schema, command list, and cross-platform semantics are documented on Conflu
 |----------------------------|---------|
 | Android API                | 23+     |
 | Kotlin                     | 2.0+    |
-| Tealium Prism Core         | 0.4.0+  |
+| Tealium Prism Core         | 0.5.0+  |
 | Firebase Analytics (BoM)   | 34.6.0+ |
 
 ## Installation
@@ -49,7 +49,6 @@ import com.tealium.prism.core.api.TealiumConfig
 import com.tealium.prism.core.api.misc.TimeFrameUtils.minutes
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
-import com.tealium.prism.firebase.FirebaseLogLevel
 import com.tealium.prism.firebase.firebase
 
 class ExampleApplication : Application() {
@@ -73,16 +72,16 @@ class ExampleApplication : Application() {
         builder
             .setSessionTimeout(30.minutes)
             .setAnalyticsEnabled(true)
-            .setLogLevel(FirebaseLogLevel.DEBUG)
             .setMappings {
                 mapCommand(FirebaseCommand.LOG_EVENT)
+                    .forAllEvents()
                 mapFrom("tealium_event", FirebaseDestination.EventName)
                 mapFrom("total", FirebaseDestination.EventParam(Param.VALUE))
                 mapFrom("currency", FirebaseDestination.EventParam(Param.CURRENCY))
                 mapFrom("product_ids", FirebaseDestination.ItemParam(Param.ITEM_ID))
                 mapFrom("product_names", FirebaseDestination.ItemParam(Param.ITEM_NAME))
 
-                mapCommand(FirebaseCommand.SET_USER_ID)
+                mapCommand(FirebaseCommand.SET_USER_ID).ifValueEquals("tealium_event", "user_login")
                 mapFrom("customer_id", FirebaseDestination.UserId)
 
                 mapCommand(FirebaseCommand.SET_USER_PROPERTY)
@@ -120,7 +119,6 @@ mappings, and the `items` array-of-objects / parallel-arrays formats.
 |----------------------------------|--------|--------------------|------------------------------------|
 | `session_timeout_seconds`        | Number | 1800               | Seconds. Converted to ms internally. |
 | `analytics_collection_enabled`   | Bool   | `true`             |                                    |
-| `log_level`                      | String | Firebase default   | No-op on Android — accepted for cross-platform parity. |
 
 ## Example App
 
