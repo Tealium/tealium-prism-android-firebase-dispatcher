@@ -7,7 +7,6 @@ import com.tealium.prism.core.api.data.DataItem
 import com.tealium.prism.core.api.data.DataItemConverter
 import com.tealium.prism.core.api.data.DataList
 import com.tealium.prism.core.api.data.DataObject
-import com.tealium.prism.core.api.data.mapValues
 import com.tealium.prism.core.api.data.mapValuesNotNull
 
 /**
