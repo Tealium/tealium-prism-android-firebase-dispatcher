@@ -7,7 +7,6 @@ import com.tealium.prism.core.api.misc.Scheduler
 import com.tealium.prism.core.api.tracking.Dispatch
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.helpers.MockFirebaseAnalytics
-import com.tealium.prism.firebase.helpers.NoOpLogger
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Assert.assertEquals
@@ -22,24 +21,24 @@ class FirebaseDispatcherTests {
 
     private fun newDispatcher(
         configuration: FirebaseDispatcherConfiguration =
-            FirebaseDispatcherConfiguration(null, null, null),
+            FirebaseDispatcherConfiguration(null, null),
     ): FirebaseDispatcher = FirebaseDispatcher(
         firebaseInstance = firebase,
         configuration = configuration,
-        logger = NoOpLogger(),
+        logger = mockk(relaxed = true),
         scheduler = Scheduler.SYNCHRONOUS,
     )
 
     @Test
     fun init_applies_session_timeout_and_analytics_enabled() {
-        newDispatcher(FirebaseDispatcherConfiguration(1800.0, true, null))
+        newDispatcher(FirebaseDispatcherConfiguration(1800.0, true))
         assertEquals(1_800_000L, firebase.lastSessionTimeoutMillis)
         assertEquals(true, firebase.lastAnalyticsEnabled)
     }
 
     @Test
     fun init_applies_all_configuration_settings() {
-        newDispatcher(FirebaseDispatcherConfiguration(900.0, false, null))
+        newDispatcher(FirebaseDispatcherConfiguration(900.0, false))
         assertEquals(900_000L, firebase.lastSessionTimeoutMillis)
         assertEquals(false, firebase.lastAnalyticsEnabled)
     }
