@@ -94,8 +94,8 @@ class ParametersBundleConverterTests {
     }
 
     @Test
-    fun array_of_objects_keeps_empty_slot_for_non_dict_entries() {
-        // Non-dict entries are kept as empty bundles to preserve item index alignment.
+    fun array_of_objects_drops_non_dict_and_empty_entries() {
+        // Non-dict and empty entries are dropped — Firebase discards empty items on its side anyway.
         val bundle = ParametersBundleConverter.build(
             DataObject.create {
                 put(
@@ -106,6 +106,11 @@ class ParametersBundleConverterTests {
                             put("price", 29.99)
                         })
                         add("not_a_dict")
+                        add(DataObject.create {})
+                        add(DataObject.create {
+                            put("item_id", "SKU3")
+                            put("price", 49.99)
+                        })
                     }
                 )
             }
@@ -117,7 +122,7 @@ class ParametersBundleConverterTests {
         requireNotNull(items)
         assertEquals(2, items.size)
         assertEquals("SKU1", items[0].getString("item_id"))
-        assertEquals(true, items[1].isEmpty)
+        assertEquals("SKU3", items[1].getString("item_id"))
     }
 
     @Test

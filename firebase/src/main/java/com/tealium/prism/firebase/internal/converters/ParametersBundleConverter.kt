@@ -64,15 +64,14 @@ internal object ParametersBundleConverter : DataItemConverter<Bundle> {
     private fun buildFromArrayOfObjects(list: DataList): List<Bundle> {
         val items = ArrayList<Bundle>(list.size)
         for (entry in list) {
-            val dict = entry.getDataObject()
+            // Drop non-dict and empty entries — Firebase discards empty items itself, so keeping
+            // an empty slot has no effect and only risks approaching the per-event item limit sooner.
+            val dict = entry.getDataObject() ?: continue
             val itemBundle = Bundle()
-            if (dict != null) {
-                for ((k, v) in dict) {
-                    putScalar(itemBundle, k, v)
-                }
+            for ((k, v) in dict) {
+                putScalar(itemBundle, k, v)
             }
-            // Keep every index slot so item positions stay aligned across the array.
-            items.add(itemBundle)
+            if (!itemBundle.isEmpty) items.add(itemBundle)
         }
         return items
     }
