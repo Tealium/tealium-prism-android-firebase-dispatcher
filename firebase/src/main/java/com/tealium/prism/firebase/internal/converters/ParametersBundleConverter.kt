@@ -1,4 +1,4 @@
-package com.tealium.prism.firebase.internal
+package com.tealium.prism.firebase.internal.converters
 
 import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -25,9 +25,9 @@ import com.tealium.prism.core.api.data.mapValuesNotNull
  * Any array-length mismatch in shape (2) throws [CommandException.arrayLengthMismatch].
  *
  * Implements [DataItemConverter] so callers can extract parameters type-safely via
- * `payload.extract(path, ParametersBundleBuilder)`.
+ * `payload.extract(path, ParametersBundleConverter)`.
  */
-internal object ParametersBundleBuilder : DataItemConverter<Bundle> {
+internal object ParametersBundleConverter : DataItemConverter<Bundle> {
 
     private const val ITEMS_KEY = FirebaseAnalytics.Param.ITEMS
 

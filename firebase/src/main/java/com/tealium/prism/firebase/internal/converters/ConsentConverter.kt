@@ -1,4 +1,4 @@
-package com.tealium.prism.firebase.internal
+package com.tealium.prism.firebase.internal.converters
 
 import com.google.firebase.analytics.FirebaseAnalytics.ConsentStatus
 import com.google.firebase.analytics.FirebaseAnalytics.ConsentType

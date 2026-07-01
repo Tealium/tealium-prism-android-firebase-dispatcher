@@ -5,7 +5,7 @@ import com.tealium.prism.core.api.command.Command
 import com.tealium.prism.core.api.command.CommandException
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
-import com.tealium.prism.firebase.internal.ConsentConverter
+import com.tealium.prism.firebase.internal.converters.ConsentConverter
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
 
 /**

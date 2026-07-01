@@ -1,4 +1,4 @@
-package com.tealium.prism.firebase.internal
+package com.tealium.prism.firebase.internal.converters
 
 import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -14,21 +14,21 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class ParametersBundleBuilderTests {
+class ParametersBundleConverterTests {
 
     @Test
     fun null_input_returns_null() {
-        assertNull(ParametersBundleBuilder.build(null))
+        assertNull(ParametersBundleConverter.build(null))
     }
 
     @Test
     fun empty_object_returns_null() {
-        assertNull(ParametersBundleBuilder.build(DataObject.create {}))
+        assertNull(ParametersBundleConverter.build(DataObject.create {}))
     }
 
     @Test
     fun scalar_values_map_to_matching_bundle_types() {
-        val bundle = ParametersBundleBuilder.build(
+        val bundle = ParametersBundleConverter.build(
             DataObject.create {
                 put("string_key", "value")
                 put("bool_key", true)
@@ -46,7 +46,7 @@ class ParametersBundleBuilderTests {
 
     @Test
     fun parallel_arrays_transpose_into_item_bundles() {
-        val bundle = ParametersBundleBuilder.build(
+        val bundle = ParametersBundleConverter.build(
             DataObject.create {
                 put(
                     FirebaseAnalytics.Param.ITEMS,
@@ -71,7 +71,7 @@ class ParametersBundleBuilderTests {
 
     @Test
     fun array_of_objects_passes_through_unchanged() {
-        val bundle = ParametersBundleBuilder.build(
+        val bundle = ParametersBundleConverter.build(
             DataObject.create {
                 put(
                     FirebaseAnalytics.Param.ITEMS,
@@ -100,7 +100,7 @@ class ParametersBundleBuilderTests {
 
     @Test
     fun null_value_is_silently_skipped() {
-        val bundle = ParametersBundleBuilder.build(
+        val bundle = ParametersBundleConverter.build(
             DataObject.create {
                 put("keep", "value")
                 putNull("drop")
@@ -114,7 +114,7 @@ class ParametersBundleBuilderTests {
 
     @Test
     fun only_null_values_yield_null_bundle() {
-        val bundle = ParametersBundleBuilder.build(
+        val bundle = ParametersBundleConverter.build(
             DataObject.create { putNull("drop") }
         )
         assertNull(bundle)
@@ -122,7 +122,7 @@ class ParametersBundleBuilderTests {
 
     @Test
     fun empty_items_list_produces_empty_items_array() {
-        val bundle = ParametersBundleBuilder.build(
+        val bundle = ParametersBundleConverter.build(
             DataObject.create {
                 put(FirebaseAnalytics.Param.ITEMS, DataList.create {})
             }
@@ -137,7 +137,7 @@ class ParametersBundleBuilderTests {
     @Test
     fun mismatched_parallel_arrays_throw_arrayLengthMismatch() {
         assertThrows(CommandException::class.java) {
-            ParametersBundleBuilder.build(
+            ParametersBundleConverter.build(
                 DataObject.create {
                     put(
                         FirebaseAnalytics.Param.ITEMS,

@@ -4,7 +4,7 @@ import com.tealium.prism.core.api.command.Command
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
-import com.tealium.prism.firebase.internal.ParametersBundleBuilder
+import com.tealium.prism.firebase.internal.converters.ParametersBundleConverter
 
 /**
  * Logs events to Firebase Analytics with optional parameters and items.
@@ -47,7 +47,7 @@ import com.tealium.prism.firebase.internal.ParametersBundleBuilder
 internal fun logEventCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
     synchronous(FirebaseCommand.LOG_EVENT) { payload ->
         val eventName = payload.requireString(FirebaseDestination.EventName)
-        val bundle = payload.extract(FirebaseDestination.EventParams, ParametersBundleBuilder)
+        val bundle = payload.extract(FirebaseDestination.EventParams, ParametersBundleConverter)
 
         firebaseInstance.logEvent(eventName, bundle)
     }

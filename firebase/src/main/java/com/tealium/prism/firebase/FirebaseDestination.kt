@@ -4,7 +4,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.tealium.prism.core.api.data.JsonObjectPath
 import com.tealium.prism.core.api.data.JsonObjectPathConvertible
 import com.tealium.prism.core.api.data.JsonPath
-import com.tealium.prism.firebase.internal.ConsentConverter
+import com.tealium.prism.firebase.internal.converters.ConsentConverter
 
 /**
  * Type-safe Firebase Analytics mapping destinations.
