@@ -46,14 +46,13 @@ class SetDefaultParametersCommandTests {
     }
 
     @Test
-    fun empty_parameters_object_clears_defaults() {
+    fun empty_parameters_object_is_noop() {
         val result = runCommand(
             command,
             DataObject.create { put("parameters", DataObject.create {}) },
         )
         assertTrue(result.isSuccess)
-        assertNull(firebase.lastDefaultParameters)
-        assertEquals(1, firebase.setDefaultEventParametersCount)
+        assertEquals(0, firebase.setDefaultEventParametersCount)
     }
 
     @Test

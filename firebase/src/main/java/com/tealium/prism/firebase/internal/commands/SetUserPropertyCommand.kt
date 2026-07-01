@@ -48,10 +48,7 @@ internal fun setUserPropertyCommand(firebaseInstance: FirebaseAnalyticsInterface
             throw CommandException.emptyArray(namesPath.toString())
         }
         if (names.all { it == null }) {
-            throw CommandException.invalidParameterType(
-                namesPath.toString(),
-                "string or string array",
-            )
+            throw CommandException.emptyArray(namesPath.toString())
         }
         if (names.size != values.size) {
             throw CommandException.arrayLengthMismatch(

@@ -4,7 +4,7 @@ import com.tealium.prism.core.api.command.Command
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
-import com.tealium.prism.firebase.internal.ParametersBundleBuilder
+import com.tealium.prism.firebase.internal.converters.ParametersBundleConverter
 
 /**
  * Sets (or clears) Firebase Analytics default event parameters.
@@ -27,6 +27,14 @@ import com.tealium.prism.firebase.internal.ParametersBundleBuilder
  */
 internal fun setDefaultParametersCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
     synchronous(FirebaseCommand.SET_DEFAULT_PARAMETERS) { payload ->
-        val bundle = payload.extract(FirebaseDestination.DefaultParams, ParametersBundleBuilder)
+        val paramsItem = payload.extractDataObject(FirebaseDestination.DefaultParams)
+        if (paramsItem == null) {
+            // Parameters key absent entirely — clear all defaults.
+            firebaseInstance.setDefaultEventParameters(null)
+            return@synchronous
+        }
+        // Empty dict is a no-op — nothing to set, and we don't want to silently clear all defaults.
+        // Clearing only happens when the parameters key is absent entirely.
+        val bundle = ParametersBundleConverter.build(paramsItem) ?: return@synchronous
         firebaseInstance.setDefaultEventParameters(bundle)
     }

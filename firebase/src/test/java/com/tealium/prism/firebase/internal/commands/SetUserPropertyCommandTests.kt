@@ -126,7 +126,9 @@ class SetUserPropertyCommandTests {
             },
         )
         assertFalse(result.isSuccess)
-        assertTrue(result.exceptionOrNull() is CommandException)
+        val exception = result.exceptionOrNull()
+        assertTrue(exception is CommandException)
+        assertTrue(exception!!.message!!.contains("empty"))
         assertTrue(firebase.userProperties.isEmpty())
     }
 
