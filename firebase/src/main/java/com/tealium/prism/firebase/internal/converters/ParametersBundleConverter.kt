@@ -64,18 +64,25 @@ internal object ParametersBundleConverter : DataItemConverter<Bundle> {
     private fun buildFromArrayOfObjects(list: DataList): List<Bundle> {
         val items = ArrayList<Bundle>(list.size)
         for (entry in list) {
-            val dict = entry.getDataObject() ?: continue
+            val dict = entry.getDataObject()
             val itemBundle = Bundle()
-            for ((k, v) in dict) {
-                putScalar(itemBundle, k, v)
+            if (dict != null) {
+                for ((k, v) in dict) {
+                    putScalar(itemBundle, k, v)
+                }
             }
-            if (!itemBundle.isEmpty) items.add(itemBundle)
+            // Keep every index slot so item positions stay aligned across the array.
+            items.add(itemBundle)
         }
         return items
     }
 
     private fun buildFromParallelArrays(dict: DataObject): List<Bundle> {
-        val arrays = dict.mapValuesNotNull(DataItem::getDataList)
+        // Scalar values are treated as single-element arrays so {"item_id": "SKU1"} produces
+        // one item without requiring the caller to wrap scalars in arrays.
+        val arrays: Map<String, List<DataItem>> = dict.mapValuesNotNull { item ->
+            item.getDataList()?.toList() ?: item.value?.let { listOf(item) }
+        }
         if (arrays.isEmpty()) return emptyList()
 
         val referenceKey = arrays.keys.first()
@@ -92,8 +99,7 @@ internal object ParametersBundleConverter : DataItemConverter<Bundle> {
         for (index in 0 until referenceSize) {
             val itemBundle = Bundle()
             for ((key, array) in arrays) {
-                val item = array.get(index) ?: continue
-                putScalar(itemBundle, key, item)
+                putScalar(itemBundle, key, array[index])
             }
             if (!itemBundle.isEmpty) items.add(itemBundle)
         }

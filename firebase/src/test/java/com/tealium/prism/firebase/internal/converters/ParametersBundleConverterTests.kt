@@ -70,6 +70,57 @@ class ParametersBundleConverterTests {
     }
 
     @Test
+    fun scalar_item_values_wrap_as_single_element_arrays() {
+        // A single-item payload expressed as scalars (no arrays) produces one item bundle.
+        val bundle = ParametersBundleConverter.build(
+            DataObject.create {
+                put(
+                    FirebaseAnalytics.Param.ITEMS,
+                    DataObject.create {
+                        put("item_id", "SKU1")
+                        put("price", 9.99)
+                    }
+                )
+            }
+        )
+        assertNotNull(bundle)
+        requireNotNull(bundle)
+        val items = bundle.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)
+        assertNotNull(items)
+        requireNotNull(items)
+        assertEquals(1, items.size)
+        assertEquals("SKU1", items[0].getString("item_id"))
+        assertEquals(9.99, items[0].getDouble("price"), 0.0)
+    }
+
+    @Test
+    fun array_of_objects_keeps_empty_slot_for_non_dict_entries() {
+        // Non-dict entries are kept as empty bundles to preserve item index alignment.
+        val bundle = ParametersBundleConverter.build(
+            DataObject.create {
+                put(
+                    FirebaseAnalytics.Param.ITEMS,
+                    DataList.create {
+                        add(DataObject.create {
+                            put("item_id", "SKU1")
+                            put("price", 29.99)
+                        })
+                        add("not_a_dict")
+                    }
+                )
+            }
+        )
+        assertNotNull(bundle)
+        requireNotNull(bundle)
+        val items = bundle.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)
+        assertNotNull(items)
+        requireNotNull(items)
+        assertEquals(2, items.size)
+        assertEquals("SKU1", items[0].getString("item_id"))
+        assertEquals(true, items[1].isEmpty)
+    }
+
+    @Test
     fun array_of_objects_passes_through_unchanged() {
         val bundle = ParametersBundleConverter.build(
             DataObject.create {
