@@ -1,11 +1,13 @@
 package com.tealium.prism.firebase.internal.commands
 
+import android.os.Bundle
 import com.tealium.prism.core.api.data.DataObject
-import com.tealium.prism.firebase.helpers.MockFirebaseAnalytics
 import com.tealium.prism.firebase.helpers.runCommand
+import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -14,7 +16,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SetDefaultParametersCommandTests {
 
-    private val firebase = MockFirebaseAnalytics()
+    private val firebase = mockk<FirebaseAnalyticsInterface>(relaxed = true)
     private val command = setDefaultParametersCommand(firebase)
 
     @Test
@@ -32,17 +34,17 @@ class SetDefaultParametersCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        assertNotNull(firebase.lastDefaultParameters)
-        assertEquals("2.1.0", firebase.lastDefaultParameters!!.getString("app_version"))
-        assertEquals(42L, firebase.lastDefaultParameters!!.getLong("build"))
+        val bundle = slot<Bundle>()
+        verify(exactly = 1) { firebase.setDefaultEventParameters(capture(bundle)) }
+        assertEquals("2.1.0", bundle.captured.getString("app_version"))
+        assertEquals(42L, bundle.captured.getLong("build"))
     }
 
     @Test
     fun missing_parameters_clears_defaults() {
         val result = runCommand(command, DataObject.create {})
         assertTrue(result.isSuccess)
-        assertNull(firebase.lastDefaultParameters)
-        assertEquals(1, firebase.setDefaultEventParametersCount)
+        verify(exactly = 1) { firebase.setDefaultEventParameters(null) }
     }
 
     @Test
@@ -52,7 +54,7 @@ class SetDefaultParametersCommandTests {
             DataObject.create { put("parameters", DataObject.create {}) },
         )
         assertTrue(result.isSuccess)
-        assertEquals(0, firebase.setDefaultEventParametersCount)
+        verify(exactly = 0) { firebase.setDefaultEventParameters(any()) }
     }
 
     @Test
@@ -72,10 +74,11 @@ class SetDefaultParametersCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val bundle = firebase.lastDefaultParameters!!
-        assertEquals("value", bundle.getString("string_key"))
-        assertEquals(42L, bundle.getLong("long_key"))
-        assertEquals(9.99, bundle.getDouble("double_key"), 0.0)
-        assertEquals(true, bundle.getBoolean("bool_key"))
+        val bundle = slot<Bundle>()
+        verify(exactly = 1) { firebase.setDefaultEventParameters(capture(bundle)) }
+        assertEquals("value", bundle.captured.getString("string_key"))
+        assertEquals(42L, bundle.captured.getLong("long_key"))
+        assertEquals(9.99, bundle.captured.getDouble("double_key"), 0.0)
+        assertEquals(true, bundle.captured.getBoolean("bool_key"))
     }
 }

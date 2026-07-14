@@ -3,17 +3,18 @@ package com.tealium.prism.firebase.internal.commands
 import com.tealium.prism.core.api.command.CommandException
 import com.tealium.prism.core.api.data.DataList
 import com.tealium.prism.core.api.data.DataObject
-import com.tealium.prism.firebase.helpers.MockFirebaseAnalytics
 import com.tealium.prism.firebase.helpers.runCommand
-import org.junit.Assert.assertEquals
+import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifySequence
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SetUserPropertyCommandTests {
 
-    private val firebase = MockFirebaseAnalytics()
+    private val firebase = mockk<FirebaseAnalyticsInterface>(relaxed = true)
     private val command = setUserPropertyCommand(firebase)
 
     @Test
@@ -26,9 +27,7 @@ class SetUserPropertyCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val prop = firebase.userProperties.single()
-        assertEquals("tier", prop.name)
-        assertEquals("premium", prop.value)
+        verify(exactly = 1) { firebase.setUserProperty("tier", "premium") }
     }
 
     @Test
@@ -41,9 +40,7 @@ class SetUserPropertyCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val prop = firebase.userProperties.single()
-        assertEquals("tier", prop.name)
-        assertNull(prop.value)
+        verify(exactly = 1) { firebase.setUserProperty("tier", null) }
     }
 
     @Test
@@ -56,11 +53,10 @@ class SetUserPropertyCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        assertEquals(2, firebase.userProperties.size)
-        assertEquals(
-            listOf("tier" to "premium", "level" to "expert"),
-            firebase.userProperties.map { it.name to it.value },
-        )
+        verifySequence {
+            firebase.setUserProperty("tier", "premium")
+            firebase.setUserProperty("level", "expert")
+        }
     }
 
     @Test
@@ -74,7 +70,7 @@ class SetUserPropertyCommandTests {
         )
         assertFalse(result.isSuccess)
         assertTrue(result.exceptionOrNull() is CommandException)
-        assertTrue(firebase.userProperties.isEmpty())
+        verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
     }
 
     @Test
@@ -96,9 +92,7 @@ class SetUserPropertyCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val prop = firebase.userProperties.single()
-        assertEquals("42", prop.name)
-        assertEquals("99", prop.value)
+        verify(exactly = 1) { firebase.setUserProperty("42", "99") }
     }
 
     @Test
@@ -111,9 +105,7 @@ class SetUserPropertyCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val prop = firebase.userProperties.single()
-        assertEquals("score", prop.name)
-        assertEquals("9.5", prop.value)
+        verify(exactly = 1) { firebase.setUserProperty("score", "9.5") }
     }
 
     @Test
@@ -129,7 +121,7 @@ class SetUserPropertyCommandTests {
         val exception = result.exceptionOrNull()
         assertTrue(exception is CommandException)
         assertTrue(exception!!.message!!.contains("empty"))
-        assertTrue(firebase.userProperties.isEmpty())
+        verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
     }
 
     @Test
@@ -140,7 +132,7 @@ class SetUserPropertyCommandTests {
         )
         assertFalse(result.isSuccess)
         assertTrue(result.exceptionOrNull() is CommandException)
-        assertTrue(firebase.userProperties.isEmpty())
+        verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
     }
 
     @Test
@@ -154,7 +146,7 @@ class SetUserPropertyCommandTests {
         )
         assertFalse(result.isSuccess)
         assertTrue(result.exceptionOrNull() is CommandException)
-        assertTrue(firebase.userProperties.isEmpty())
+        verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
     }
 
     @Test
@@ -173,10 +165,9 @@ class SetUserPropertyCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        assertEquals(2, firebase.userProperties.size)
-        assertEquals("tier", firebase.userProperties[0].name)
-        assertNull(firebase.userProperties[0].value)
-        assertEquals("level", firebase.userProperties[1].name)
-        assertEquals("expert", firebase.userProperties[1].value)
+        verifySequence {
+            firebase.setUserProperty("tier", null)
+            firebase.setUserProperty("level", "expert")
+        }
     }
 }

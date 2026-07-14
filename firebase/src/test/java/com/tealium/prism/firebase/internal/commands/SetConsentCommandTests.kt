@@ -4,17 +4,17 @@ import com.google.firebase.analytics.FirebaseAnalytics.ConsentStatus
 import com.google.firebase.analytics.FirebaseAnalytics.ConsentType
 import com.tealium.prism.core.api.command.CommandException
 import com.tealium.prism.core.api.data.DataObject
-import com.tealium.prism.firebase.helpers.MockFirebaseAnalytics
 import com.tealium.prism.firebase.helpers.runCommand
-import org.junit.Assert.assertEquals
+import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SetConsentCommandTests {
 
-    private val firebase = MockFirebaseAnalytics()
+    private val firebase = mockk<FirebaseAnalyticsInterface>(relaxed = true)
     private val command = setConsentCommand(firebase)
 
     @Test
@@ -32,9 +32,14 @@ class SetConsentCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val settings = firebase.lastConsentSettings!!
-        assertEquals(ConsentStatus.GRANTED, settings[ConsentType.AD_STORAGE])
-        assertEquals(ConsentStatus.DENIED, settings[ConsentType.ANALYTICS_STORAGE])
+        verify(exactly = 1) {
+            firebase.setConsent(
+                mapOf(
+                    ConsentType.AD_STORAGE to ConsentStatus.GRANTED,
+                    ConsentType.ANALYTICS_STORAGE to ConsentStatus.DENIED,
+                ),
+            )
+        }
     }
 
     @Test
@@ -54,12 +59,16 @@ class SetConsentCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val settings = firebase.lastConsentSettings!!
-        assertEquals(4, settings.size)
-        assertEquals(ConsentStatus.GRANTED, settings[ConsentType.AD_STORAGE])
-        assertEquals(ConsentStatus.GRANTED, settings[ConsentType.ANALYTICS_STORAGE])
-        assertEquals(ConsentStatus.DENIED, settings[ConsentType.AD_USER_DATA])
-        assertEquals(ConsentStatus.DENIED, settings[ConsentType.AD_PERSONALIZATION])
+        verify(exactly = 1) {
+            firebase.setConsent(
+                mapOf(
+                    ConsentType.AD_STORAGE to ConsentStatus.GRANTED,
+                    ConsentType.ANALYTICS_STORAGE to ConsentStatus.GRANTED,
+                    ConsentType.AD_USER_DATA to ConsentStatus.DENIED,
+                    ConsentType.AD_PERSONALIZATION to ConsentStatus.DENIED,
+                ),
+            )
+        }
     }
 
     @Test
@@ -78,7 +87,7 @@ class SetConsentCommandTests {
         )
         assertFalse(result.isSuccess)
         assertTrue(result.exceptionOrNull() is CommandException)
-        assertNull(firebase.lastConsentSettings)
+        verify(exactly = 0) { firebase.setConsent(any()) }
     }
 
     @Test
@@ -96,7 +105,7 @@ class SetConsentCommandTests {
         )
         assertFalse(result.isSuccess)
         assertTrue(result.exceptionOrNull() is CommandException)
-        assertNull(firebase.lastConsentSettings)
+        verify(exactly = 0) { firebase.setConsent(any()) }
     }
 
     @Test
@@ -114,9 +123,14 @@ class SetConsentCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val settings = firebase.lastConsentSettings!!
-        assertEquals(ConsentStatus.GRANTED, settings[ConsentType.AD_STORAGE])
-        assertEquals(ConsentStatus.DENIED, settings[ConsentType.ANALYTICS_STORAGE])
+        verify(exactly = 1) {
+            firebase.setConsent(
+                mapOf(
+                    ConsentType.AD_STORAGE to ConsentStatus.GRANTED,
+                    ConsentType.ANALYTICS_STORAGE to ConsentStatus.DENIED,
+                ),
+            )
+        }
     }
 
     @Test

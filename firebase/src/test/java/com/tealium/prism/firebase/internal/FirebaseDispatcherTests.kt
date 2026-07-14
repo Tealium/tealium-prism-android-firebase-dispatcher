@@ -6,10 +6,8 @@ import com.tealium.prism.core.api.misc.Callback
 import com.tealium.prism.core.api.misc.Scheduler
 import com.tealium.prism.core.api.tracking.Dispatch
 import com.tealium.prism.firebase.FirebaseCommand
-import com.tealium.prism.firebase.helpers.MockFirebaseAnalytics
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -17,7 +15,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class FirebaseDispatcherTests {
 
-    private val firebase = MockFirebaseAnalytics()
+    private val firebase = mockk<FirebaseAnalyticsInterface>(relaxed = true)
 
     private fun newDispatcher(
         configuration: FirebaseDispatcherConfiguration =
@@ -32,22 +30,22 @@ class FirebaseDispatcherTests {
     @Test
     fun init_applies_session_timeout_and_analytics_enabled() {
         newDispatcher(FirebaseDispatcherConfiguration(1800.0, true))
-        assertEquals(1_800_000L, firebase.lastSessionTimeoutMillis)
-        assertEquals(true, firebase.lastAnalyticsEnabled)
+        verify(exactly = 1) { firebase.setSessionTimeoutDuration(1_800_000L) }
+        verify(exactly = 1) { firebase.setAnalyticsCollectionEnabled(true) }
     }
 
     @Test
     fun init_applies_all_configuration_settings() {
         newDispatcher(FirebaseDispatcherConfiguration(900.0, false))
-        assertEquals(900_000L, firebase.lastSessionTimeoutMillis)
-        assertEquals(false, firebase.lastAnalyticsEnabled)
+        verify(exactly = 1) { firebase.setSessionTimeoutDuration(900_000L) }
+        verify(exactly = 1) { firebase.setAnalyticsCollectionEnabled(false) }
     }
 
     @Test
     fun init_with_nulls_does_not_touch_firebase() {
         newDispatcher()
-        assertEquals(0, firebase.setSessionTimeoutCount)
-        assertEquals(0, firebase.setAnalyticsEnabledCount)
+        verify(exactly = 0) { firebase.setSessionTimeoutDuration(any()) }
+        verify(exactly = 0) { firebase.setAnalyticsCollectionEnabled(any()) }
     }
 
     @Test
@@ -59,8 +57,8 @@ class FirebaseDispatcherTests {
                 put(FirebaseDispatcherConfiguration.KEY_ANALYTICS_ENABLED, false)
             }
         )
-        assertEquals(900_000L, firebase.lastSessionTimeoutMillis)
-        assertEquals(false, firebase.lastAnalyticsEnabled)
+        verify(exactly = 1) { firebase.setSessionTimeoutDuration(900_000L) }
+        verify(exactly = 1) { firebase.setAnalyticsCollectionEnabled(false) }
     }
 
 
@@ -78,8 +76,7 @@ class FirebaseDispatcherTests {
 
         dispatcher.dispatch(listOf(dispatch), callback)
 
-        assertEquals(1, firebase.loggedEvents.size)
-        assertEquals("purchase", firebase.loggedEvents[0].name)
+        verify(exactly = 1) { firebase.logEvent("purchase", any()) }
         verify(exactly = 1) { callback.onComplete(listOf(dispatch)) }
     }
 
@@ -96,7 +93,7 @@ class FirebaseDispatcherTests {
 
         dispatcher.dispatch(listOf(dispatch), callback)
 
-        assertEquals(0, firebase.loggedEvents.size)
+        verify(exactly = 0) { firebase.logEvent(any(), any()) }
         verify(exactly = 1) { callback.onComplete(listOf(dispatch)) }
     }
 
@@ -117,7 +114,7 @@ class FirebaseDispatcherTests {
 
         dispatcher.dispatch(listOf(dispatch), callback)
 
-        assertEquals(1, firebase.loggedEvents.size)
+        verify(exactly = 1) { firebase.logEvent(any(), any()) }
         verify(exactly = 1) { callback.onComplete(listOf(dispatch)) }
     }
 
@@ -142,8 +139,8 @@ class FirebaseDispatcherTests {
 
         dispatcher.dispatch(listOf(dispatch), callback)
 
-        assertEquals(1, firebase.loggedEvents.size)
-        assertEquals("user_123", firebase.lastUserId)
+        verify(exactly = 1) { firebase.logEvent(any(), any()) }
+        verify(exactly = 1) { firebase.setUserId("user_123") }
         verify(exactly = 1) { callback.onComplete(listOf(dispatch)) }
     }
 
@@ -158,7 +155,7 @@ class FirebaseDispatcherTests {
 
         dispatcher.dispatch(listOf(dispatch), callback)
 
-        assertEquals(0, firebase.loggedEvents.size)
+        verify(exactly = 0) { firebase.logEvent(any(), any()) }
         verify(exactly = 1) { callback.onComplete(listOf(dispatch)) }
     }
 
@@ -175,8 +172,8 @@ class FirebaseDispatcherTests {
 
         dispatcher.dispatch(listOf(dispatch), callback)
 
-        assertEquals(0, firebase.loggedEvents.size)
-        assertEquals(0, firebase.setUserIdCount)
+        verify(exactly = 0) { firebase.logEvent(any(), any()) }
+        verify(exactly = 0) { firebase.setUserId(any()) }
         verify(exactly = 1) { callback.onComplete(listOf(dispatch)) }
     }
 }

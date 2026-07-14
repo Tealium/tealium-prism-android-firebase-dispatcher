@@ -5,12 +5,13 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.tealium.prism.core.api.command.CommandException
 import com.tealium.prism.core.api.data.DataList
 import com.tealium.prism.core.api.data.DataObject
-import com.tealium.prism.firebase.helpers.MockFirebaseAnalytics
 import com.tealium.prism.firebase.helpers.runCommand
+import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,16 +20,14 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class LogEventCommandTests {
 
-    private val firebase = MockFirebaseAnalytics()
+    private val firebase = mockk<FirebaseAnalyticsInterface>(relaxed = true)
     private val command = logEventCommand(firebase)
 
     @Test
     fun forwards_event_without_parameters() {
         val result = runCommand(command, DataObject.create { put("event_name", "login") })
         assertTrue(result.isSuccess)
-        assertEquals(1, firebase.loggedEvents.size)
-        assertEquals("login", firebase.loggedEvents[0].name)
-        assertNull(firebase.loggedEvents[0].parameters)
+        verify(exactly = 1) { firebase.logEvent("login", null) }
     }
 
     @Test
@@ -47,11 +46,10 @@ class LogEventCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val logged = firebase.loggedEvents.single()
-        assertEquals("purchase", logged.name)
-        assertNotNull(logged.parameters)
-        assertEquals(99.99, logged.parameters!!.getDouble("value"), 0.0)
-        assertEquals("USD", logged.parameters!!.getString("currency"))
+        val params = slot<Bundle>()
+        verify(exactly = 1) { firebase.logEvent("purchase", capture(params)) }
+        assertEquals(99.99, params.captured.getDouble("value"), 0.0)
+        assertEquals("USD", params.captured.getString("currency"))
     }
 
     @Test
@@ -67,8 +65,9 @@ class LogEventCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val logged = firebase.loggedEvents.single()
-        assertEquals(true, logged.parameters!!.getBoolean("is_premium"))
+        val params = slot<Bundle>()
+        verify(exactly = 1) { firebase.logEvent("flag_event", capture(params)) }
+        assertEquals(true, params.captured.getBoolean("is_premium"))
     }
 
     @Test
@@ -104,10 +103,11 @@ class LogEventCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val params = firebase.loggedEvents.single().parameters!!
-        assertEquals(99.99, params.getDouble("value"), 0.0)
-        assertEquals("USD", params.getString("currency"))
-        val items = params.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)!!
+        val params = slot<Bundle>()
+        verify(exactly = 1) { firebase.logEvent("purchase", capture(params)) }
+        assertEquals(99.99, params.captured.getDouble("value"), 0.0)
+        assertEquals("USD", params.captured.getString("currency"))
+        val items = params.captured.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)!!
         assertEquals(2, items.size)
         assertEquals("SKU1", items[0].getString(FirebaseAnalytics.Param.ITEM_ID))
         assertEquals("Widget", items[0].getString(FirebaseAnalytics.Param.ITEM_NAME))
@@ -149,10 +149,9 @@ class LogEventCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val items = firebase.loggedEvents
-            .single()
-            .parameters!!
-            .getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)!!
+        val params = slot<Bundle>()
+        verify(exactly = 1) { firebase.logEvent("purchase", capture(params)) }
+        val items = params.captured.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)!!
         assertEquals(2, items.size)
         assertEquals("SKU1", items[0].getString(FirebaseAnalytics.Param.ITEM_ID))
         assertEquals("SKU2", items[1].getString(FirebaseAnalytics.Param.ITEM_ID))
@@ -189,10 +188,9 @@ class LogEventCommandTests {
             },
         )
         assertTrue(result.isSuccess)
-        val items = firebase.loggedEvents
-            .single()
-            .parameters!!
-            .getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)!!
+        val params = slot<Bundle>()
+        verify(exactly = 1) { firebase.logEvent("add_to_cart", capture(params)) }
+        val items = params.captured.getParcelableArrayList(FirebaseAnalytics.Param.ITEMS, Bundle::class.java)!!
         assertEquals(2, items.size)
         assertEquals(1, items[0].getInt(FirebaseAnalytics.Param.QUANTITY))
         assertEquals(3, items[1].getInt(FirebaseAnalytics.Param.QUANTITY))
@@ -227,7 +225,7 @@ class LogEventCommandTests {
         )
         assertFalse(result.isSuccess)
         assertTrue(result.exceptionOrNull() is CommandException)
-        assertTrue(firebase.loggedEvents.isEmpty())
+        verify(exactly = 0) { firebase.logEvent(any(), any()) }
     }
 
     @Test
@@ -237,7 +235,7 @@ class LogEventCommandTests {
         val exception = result.exceptionOrNull()
         assertTrue(exception is CommandException)
         assertTrue(exception!!.message!!.contains("missing"))
-        assertTrue(firebase.loggedEvents.isEmpty())
+        verify(exactly = 0) { firebase.logEvent(any(), any()) }
     }
 
     @Test
@@ -250,20 +248,20 @@ class LogEventCommandTests {
         val exception = result.exceptionOrNull()
         assertTrue(exception is CommandException)
         assertTrue(exception!!.message!!.contains("expected type"))
-        assertTrue(firebase.loggedEvents.isEmpty())
+        verify(exactly = 0) { firebase.logEvent(any(), any()) }
     }
 
     @Test
     fun numeric_event_name_coerced_to_string() {
         val result = runCommand(command, DataObject.create { put("event_name", 42) })
         assertTrue(result.isSuccess)
-        assertEquals("42", firebase.loggedEvents.single().name)
+        verify(exactly = 1) { firebase.logEvent("42", any()) }
     }
 
     @Test
     fun double_event_name_coerced_to_string() {
         val result = runCommand(command, DataObject.create { put("event_name", 3.14) })
         assertTrue(result.isSuccess)
-        assertEquals("3.14", firebase.loggedEvents.single().name)
+        verify(exactly = 1) { firebase.logEvent("3.14", any()) }
     }
 }
