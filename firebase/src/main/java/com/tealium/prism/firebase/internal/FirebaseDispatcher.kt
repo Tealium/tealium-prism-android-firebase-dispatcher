@@ -8,6 +8,7 @@ import com.tealium.prism.core.api.misc.Scheduler
 import com.tealium.prism.core.api.modules.Module
 import com.tealium.prism.core.api.modules.ModuleFactory
 import com.tealium.prism.core.api.modules.TealiumContext
+import com.tealium.prism.firebase.BuildConfig
 import com.tealium.prism.firebase.Firebase
 import com.tealium.prism.firebase.internal.commands.logEventCommand
 import com.tealium.prism.firebase.internal.commands.resetDataCommand
@@ -31,7 +32,7 @@ internal class FirebaseDispatcher(
     scheduler: Scheduler,
 ) : CommandDispatcher(
     id = Firebase.ID,
-    version = FirebaseConstants.VERSION,
+    version = BuildConfig.VERSION,
     commands = listOf(
         setSessionTimeoutCommand(firebaseInstance),
         setAnalyticsCollectionEnabledCommand(firebaseInstance),

@@ -27,9 +27,7 @@ object TealiumHelper {
         private set
 
     fun init(application: Application) {
-        shared = Tealium.create(buildConfig(application)) { result ->
-            result.getOrNull()?.let { shared = it }
-        }
+        shared = Tealium.create(buildConfig(application))
     }
 
     fun track(event: String, data: DataObject = DataObject.create {}) {
