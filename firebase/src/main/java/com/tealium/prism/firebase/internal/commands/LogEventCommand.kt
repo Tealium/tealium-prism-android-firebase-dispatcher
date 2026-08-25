@@ -11,7 +11,7 @@ import com.tealium.prism.firebase.internal.converters.ParametersBundleConverter
  *
  * Supports two item payload formats:
  *
- * Format 1 — Object of Arrays (Tealium convention):
+ * Format 1 — Parallel Arrays (Tealium convention):
  * ```json
  * {
  *   "command_name": "logevent",

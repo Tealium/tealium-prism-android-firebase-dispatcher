@@ -32,9 +32,9 @@ class FirebaseSettingsBuilder :
     /**
      * Set the session timeout duration.
      *
-     * Configures how long a session lasts before timing out. Default Firebase session
-     * timeout is 30 minutes. The Android SDK accepts milliseconds; seconds are preserved
-     * in the payload and converted when applied to the SDK.
+     * Configures how long a session lasts before timing out. If not set, the value is left
+     * untouched on the SDK and Firebase applies its own default. The Android SDK accepts
+     * milliseconds; seconds are preserved in the payload and converted when applied to the SDK.
      */
     fun setSessionTimeout(timeout: TimeFrame) = apply {
         configuration.put(FirebaseDispatcherConfiguration.KEY_SESSION_TIMEOUT, timeout.inSeconds())

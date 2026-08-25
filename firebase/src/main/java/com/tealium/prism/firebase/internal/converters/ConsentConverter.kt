@@ -7,8 +7,9 @@ import com.google.firebase.analytics.FirebaseAnalytics.ConsentType
  * Bidirectional mapping between consent string values and the Firebase Android enums.
  *
  * Strings match the iOS `ConsentType`/`ConsentStatus` raw values used throughout the
- * cross-platform payload schema. Unknown inputs return `null` — per spec, unrecognized
- * values are not forwarded to Firebase on Android.
+ * cross-platform payload schema. Unknown inputs return `null`; callers decide how to react —
+ * `setConsentCommand` fails the command, since the Android SDK enums are closed and an
+ * unrecognized value cannot be forwarded to Firebase.
  */
 internal object ConsentConverter {
 
