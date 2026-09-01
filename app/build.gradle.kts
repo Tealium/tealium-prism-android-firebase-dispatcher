@@ -43,6 +43,12 @@ dependencies {
     //   debugImplementation(project(":firebase"))
     //   releaseImplementation("com.tealium.prism:firebase:1.0.0")
     implementation(project(":firebase"))
+
+    implementation(platform(libs.prism.bom))
+    implementation(libs.prism.core)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
     
     // AndroidX
     implementation(libs.androidx.core.ktx)

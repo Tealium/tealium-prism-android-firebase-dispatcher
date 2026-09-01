@@ -1,0 +1,26 @@
+name: Kotlin
+
+on: [pull_request]
+
+jobs:
+  unit-test:
+    name: Build and Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Android
+        uses: ./.github/actions/android-setup
+
+      - name: Build
+        # Build only the published library. The :app example module applies the
+        # Google Services plugin, which requires a google-services.json that is
+        # gitignored (contains Firebase project secrets) and absent in CI.
+        run: ./gradlew :firebase:assembleDebug
+
+      - name: Unit tests
+        run: ./gradlew :firebase:testDebugUnitTest
+
+      - uses: ./.github/actions/upload-reports
+        with:
+          artifact-name: Reports-Unit-Tests
