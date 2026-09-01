@@ -43,7 +43,7 @@ var utag_data = {
       <div class="w-100 pr4-ns">
         <div class="flex">
           <div id="menu" class="order-0 w-auto max-vh-100 overflow-hidden overflow-y-auto dn sticky-l pt3" style="min-width: 280px;">
-            <nav class="side-nav f6 pb6 pl125" role="navigation" id="leftColumn" class="sidebar" data-item-type="SECTION">
+            <nav class="side-nav f6 pb6 pl125" role="navigation" id="leftColumn" data-item-type="SECTION">
               <ul class="list pa0 mt0 mb1">
                 <li class="w-100 fw4 f5 text-color-primary pv1 pl2"><a href="/early-access/mobile/quick-start/" class="w-100 link text-color-primary hover-primary-color pv2 pl0 pr2"><img src="/images/icons/icon-arrow-left.svg" height="10" width="16" class="di v-mid pr1">Back</a></li>
               </ul>

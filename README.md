@@ -53,9 +53,11 @@ dependencies {
 }
 ```
 
-`prism-core` arrives transitively with the dispatcher. `firebase-analytics` does not — the dispatcher
-keeps it off its own API surface, so it has to be declared explicitly; the mapping examples below also
-reference `FirebaseAnalytics.Param` constants directly.
+`prism-core` arrives transitively with the dispatcher. `firebase-analytics` must be declared
+explicitly, as shown above: the dispatcher pulls it in at runtime but not onto your compile classpath,
+and the mapping API references Firebase SDK types directly — `FirebaseDestination.ConsentSetting`
+takes a `FirebaseAnalytics.ConsentType`, and the examples below use `FirebaseAnalytics.Param`
+constants. Declaring the BoM yourself also keeps the Firebase SDK version under your control.
 
 ### Firebase Setup
 

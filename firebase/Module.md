@@ -21,13 +21,13 @@ Configure the module using a local JSON settings file (via `setSettingsFile`) an
 ```kotlin
 val config = TealiumConfig.Builder(
     application = application,
-    accountName = "tealiummobile",
-    profileName = "your-profile",
+    accountName = "my_account",
+    profileName = "my_profile",
     environment = "dev",
     modules = emptyList(),
 )
     .setSettingsFile("tealium-settings.json")
-    .setSettingsUrl("https://tags.tiqcdn.com/dle/tealiummobile/lib/example_settings.json")
+    .setSettingsUrl("https://tags.tiqcdn.com/dle/my_account/my_profile/example_settings.json")
     .build()
 ```
 
@@ -73,8 +73,8 @@ Configure the module programmatically by adding it to the `modules` list in `Tea
 ```kotlin
 val config = TealiumConfig.Builder(
     application = application,
-    accountName = "tealiummobile",
-    profileName = "your-profile",
+    accountName = "my_account",
+    profileName = "my_profile",
     environment = "dev",
     modules = listOf(
         Modules.firebase(),
@@ -86,7 +86,7 @@ val config = TealiumConfig.Builder(
 ```java
 // Java
 TealiumConfig config = new TealiumConfig.Builder(
-        application, "tealiummobile", "your-profile", "dev",
+        application, "my_account", "my_profile", "dev",
         Arrays.asList(Firebase.configure())
 ).build();
 ```
@@ -96,8 +96,8 @@ TealiumConfig config = new TealiumConfig.Builder(
 ```kotlin
 val config = TealiumConfig.Builder(
     application = application,
-    accountName = "tealiummobile",
-    profileName = "your-profile",
+    accountName = "my_account",
+    profileName = "my_profile",
     environment = "dev",
     modules = listOf(
         Modules.firebase { builder ->
