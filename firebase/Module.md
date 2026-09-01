@@ -24,12 +24,17 @@ val config = TealiumConfig.Builder(
     accountName = "my_account",
     profileName = "my_profile",
     environment = "dev",
-    modules = emptyList(),
+    modules = listOf(Modules.firebase(null)),
 )
     .setSettingsFile("tealium-settings.json")
     .setSettingsUrl("https://tags.tiqcdn.com/dle/my_account/my_profile/example_settings.json")
     .build()
 ```
+
+Passing `null` registers the module factory without enforcing any settings. The factory has to be
+registered for a settings-driven module to be created at all — without it the settings entry is
+skipped with a `factory implementation (FirebaseDispatcher) not found` warning — while `null` keeps
+initialization conditional on the local or remote settings.
 
 **Default initialization** — the module is initialized only if configured in the settings file:
 
