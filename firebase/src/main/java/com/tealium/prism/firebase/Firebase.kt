@@ -41,6 +41,10 @@ object Firebase {
     }
 }
 
+/**
+ * Returns the default [ModuleFactory] implementation that will not create any instances
+ * unless there are settings provided from Local or Remote sources.
+ */
 @JvmField
 val DEFAULT_FACTORY: ModuleFactory = Firebase.configure(null)
 

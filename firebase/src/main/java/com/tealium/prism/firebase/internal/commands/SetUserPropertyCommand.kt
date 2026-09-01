@@ -11,8 +11,8 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
 /**
  * Sets one or many Firebase Analytics user properties.
  *
- * Handles both scalar and parallel-array payload shapes. Up to 25 user property names
- * are supported. Values persist across sessions. Empty string clears the property.
+ * Handles both scalar and parallel-array payload shapes. Values persist across sessions.
+ * Empty string clears the property.
  *
  * Single property:
  * ```json

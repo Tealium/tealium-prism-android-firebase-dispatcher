@@ -1,8 +1,11 @@
 import java.net.URI
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
 
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.dokka)
     `maven-publish`
 }
 
@@ -101,4 +104,57 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.robolectric)
+}
+
+/**
+ * Name of a template directory under the repository's `docs/` folder, or an empty string for the
+ * stock Dokka look.
+ *
+ * Passing `-PDOKKA_TEMPLATES_DIR=docs-tealium-com` builds the docs.tealium.com variant, which is
+ * published to the `gh-pages` branch and consumed by the Hugo site. The stock build keeps going to
+ * GitHub Pages, so both variants can be produced from a single checkout without clobbering each other.
+ */
+val dokkaTemplatesDir: String =
+    (project.findProperty("DOKKA_TEMPLATES_DIR") as String?)
+        ?: System.getenv("DOKKA_TEMPLATES_DIR")
+        ?: ""
+
+extensions.configure(DokkaExtension::class.java) {
+    moduleName.set("Tealium Prism Firebase Dispatcher")
+
+    if (dokkaTemplatesDir.isNotBlank()) {
+        dokkaPublications.named("html") {
+            outputDirectory.set(layout.buildDirectory.dir("dokka/html-$dokkaTemplatesDir"))
+        }
+    }
+
+    dokkaSourceSets.named("main") {
+        includes.from("Module.md", "Packages.md")
+
+        sourceLink {
+            localDirectory.set(file("src/main/java"))
+            remoteUrl("https://github.com/Tealium/tealium-prism-android-firebase-dispatcher/tree/main/firebase/src/main/java")
+            remoteLineSuffix.set("#L")
+        }
+
+        // Filter out all `internal` classes from the generated documentation.
+        perPackageOption {
+            matchingRegex.set(".*internal.*")
+            suppress.set(true)
+        }
+    }
+
+    pluginsConfiguration.named("html", DokkaHtmlPluginParameters::class.java) {
+        footerMessage.set("(c) Tealium 2026")
+
+        if (dokkaTemplatesDir.isNotBlank()) {
+            val templates = rootProject.file("docs/$dokkaTemplatesDir")
+            if (templates.exists()) {
+                templatesDir.set(templates)
+                customStyleSheets.from(rootProject.fileTree(templates) { include("**/*.css") })
+            } else {
+                logger.warn("Dokka templates directory not found: $templates; using defaults")
+            }
+        }
+    }
 }
