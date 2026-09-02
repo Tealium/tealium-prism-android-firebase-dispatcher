@@ -13,7 +13,7 @@ assignees: craigrouse, enricoza
 Android Version(s) [e.g. 14, API 34]:
 Android Studio / Gradle version [e.g. Hedgehog | 2023.1.1, Gradle 8.13]:
 Kotlin version [e.g. 2.0.21]:
-Tealium Prism Firebase Dispatcher version [e.g. 1.0.0]:
+Tealium Prism Firebase Dispatcher version [e.g. 0.1.0]:
 Tealium Prism library version [e.g. 0.4.0]:
 Firebase BoM version [e.g. 34.6.0]:
 Dependency manager [Gradle/Maven]:

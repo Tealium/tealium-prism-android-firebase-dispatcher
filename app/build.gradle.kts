@@ -38,10 +38,10 @@ dependencies {
     // Firebase dispatcher module
     // LOCAL DEVELOPMENT: Uses local :firebase module from this project
     // When published to Maven, change to:
-    //   implementation("com.tealium.prism:firebase:1.0.0")
+    //   implementation("com.tealium.prism:firebase:0.1.0")
     // Or use debug/release split like in tealium-android-firebase-remote-command:
     //   debugImplementation(project(":firebase"))
-    //   releaseImplementation("com.tealium.prism:firebase:1.0.0")
+    //   releaseImplementation("com.tealium.prism:firebase:0.1.0")
     implementation(project(":firebase"))
 
     implementation(platform(libs.prism.bom))
