@@ -1,0 +1,527 @@
+{
+  "modules": {
+    "FirebaseDispatcher": {
+      "module_type": "FirebaseDispatcher",
+      "configuration": {
+        "session_timeout_seconds": 1800,
+        "analytics_collection_enabled": true
+      },
+      "mappings": [
+        {
+          "destination": { "key": "command_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "purchase" },
+            "map_to": { "value": "logevent" }
+          }
+        },
+        {
+          "destination": { "path": "event_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.value" },
+          "parameters": {
+            "reference": { "key": "total" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.currency" },
+          "parameters": {
+            "reference": { "key": "currency" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.transaction_id" },
+          "parameters": {
+            "reference": { "key": "transaction_id" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.shipping" },
+          "parameters": {
+            "reference": { "key": "shipping" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.tax" },
+          "parameters": {
+            "reference": { "key": "tax" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.affiliation" },
+          "parameters": {
+            "reference": { "key": "affiliation" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.coupon" },
+          "parameters": {
+            "reference": { "key": "coupon" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_id" },
+          "parameters": {
+            "reference": { "key": "product_ids" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_name" },
+          "parameters": {
+            "reference": { "key": "product_names" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_brand" },
+          "parameters": {
+            "reference": { "key": "product_brands" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_category" },
+          "parameters": {
+            "reference": { "key": "product_categories" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_category2" },
+          "parameters": {
+            "reference": { "key": "product_category2" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_category3" },
+          "parameters": {
+            "reference": { "key": "product_category3" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.price" },
+          "parameters": {
+            "reference": { "key": "prices" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.quantity" },
+          "parameters": {
+            "reference": { "key": "quantities" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.discount" },
+          "parameters": {
+            "reference": { "key": "discounts" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_variant" },
+          "parameters": {
+            "reference": { "key": "item_variants" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_list_id" },
+          "parameters": {
+            "reference": { "key": "item_list_ids" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_list_name" },
+          "parameters": {
+            "reference": { "key": "item_list_names" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.index" },
+          "parameters": {
+            "reference": { "key": "indices" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.custom_item_color" },
+          "parameters": {
+            "reference": { "key": "custom_item_color" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.custom_item_size" },
+          "parameters": {
+            "reference": { "key": "custom_item_size" },
+            "filter": { "value": "purchase" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.custom_item_material" },
+          "parameters": {
+            "reference": { "key": "custom_item_material" },
+            "filter": { "value": "purchase" }
+          }
+        },
+
+        {
+          "destination": { "key": "command_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "log_event" },
+            "map_to": { "value": "logevent" }
+          }
+        },
+        {
+          "destination": { "path": "event_name" },
+          "parameters": {
+            "reference": { "key": "event_name" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters" },
+          "parameters": {
+            "reference": { "key": "params" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.value" },
+          "parameters": {
+            "reference": { "key": "value" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.currency" },
+          "parameters": {
+            "reference": { "key": "currency" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.transaction_id" },
+          "parameters": {
+            "reference": { "key": "transaction_id" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.shipping" },
+          "parameters": {
+            "reference": { "key": "shipping" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.tax" },
+          "parameters": {
+            "reference": { "key": "tax" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.affiliation" },
+          "parameters": {
+            "reference": { "key": "affiliation" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.coupon" },
+          "parameters": {
+            "reference": { "key": "coupon" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.custom_event_param_1" },
+          "parameters": {
+            "reference": { "key": "custom_event_param_1" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.custom_event_param_2" },
+          "parameters": {
+            "reference": { "key": "custom_event_param_2" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.custom_event_param_3" },
+          "parameters": {
+            "reference": { "key": "custom_event_param_3" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_id" },
+          "parameters": {
+            "reference": { "key": "product_ids" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_name" },
+          "parameters": {
+            "reference": { "key": "product_names" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_brand" },
+          "parameters": {
+            "reference": { "key": "product_brands" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_category" },
+          "parameters": {
+            "reference": { "key": "product_categories" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_category2" },
+          "parameters": {
+            "reference": { "key": "product_category2" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_category3" },
+          "parameters": {
+            "reference": { "key": "product_category3" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.price" },
+          "parameters": {
+            "reference": { "key": "prices" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.quantity" },
+          "parameters": {
+            "reference": { "key": "quantities" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.discount" },
+          "parameters": {
+            "reference": { "key": "discounts" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_variant" },
+          "parameters": {
+            "reference": { "key": "item_variants" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_list_id" },
+          "parameters": {
+            "reference": { "key": "item_list_ids" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.item_list_name" },
+          "parameters": {
+            "reference": { "key": "item_list_names" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.index" },
+          "parameters": {
+            "reference": { "key": "indices" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.custom_item_color" },
+          "parameters": {
+            "reference": { "key": "custom_item_color" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.custom_item_size" },
+          "parameters": {
+            "reference": { "key": "custom_item_size" },
+            "filter": { "value": "log_event" }
+          }
+        },
+        {
+          "destination": { "path": "parameters.items.custom_item_material" },
+          "parameters": {
+            "reference": { "key": "custom_item_material" },
+            "filter": { "value": "log_event" }
+          }
+        },
+
+        {
+          "destination": { "key": "command_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "set_user_id" },
+            "map_to": { "value": "setuserid" }
+          }
+        },
+        {
+          "destination": { "path": "user_id" },
+          "parameters": {
+            "reference": { "key": "customer_id" },
+            "filter": { "value": "set_user_id" }
+          }
+        },
+
+        {
+          "destination": { "key": "command_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "set_user_property" },
+            "map_to": { "value": "setuserproperty" }
+          }
+        },
+        {
+          "destination": { "path": "property_name" },
+          "parameters": {
+            "reference": { "key": "property_name" },
+            "filter": { "value": "set_user_property" }
+          }
+        },
+        {
+          "destination": { "path": "property_value" },
+          "parameters": {
+            "reference": { "key": "property_value" },
+            "filter": { "value": "set_user_property" }
+          }
+        },
+
+        {
+          "destination": { "key": "command_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "update_consent" },
+            "map_to": { "value": "setconsent" }
+          }
+        },
+        {
+          "destination": { "path": "consent_settings.analytics_storage" },
+          "parameters": {
+            "reference": { "path": "consent_settings.analytics_storage" },
+            "filter": { "value": "update_consent" }
+          }
+        },
+        {
+          "destination": { "path": "consent_settings.ad_storage" },
+          "parameters": {
+            "reference": { "path": "consent_settings.ad_storage" },
+            "filter": { "value": "update_consent" }
+          }
+        },
+        {
+          "destination": { "path": "consent_settings.ad_user_data" },
+          "parameters": {
+            "reference": { "path": "consent_settings.ad_user_data" },
+            "filter": { "value": "update_consent" }
+          }
+        },
+        {
+          "destination": { "path": "consent_settings.ad_personalization" },
+          "parameters": {
+            "reference": { "path": "consent_settings.ad_personalization" },
+            "filter": { "value": "update_consent" }
+          }
+        },
+
+        {
+          "destination": { "key": "command_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "reset_firebase_data" },
+            "map_to": { "value": "resetdata" }
+          }
+        },
+
+        {
+          "destination": { "key": "command_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "update_session_timeout" },
+            "map_to": { "value": "setsessiontimeout" }
+          }
+        },
+        {
+          "destination": { "path": "session_timeout_seconds" },
+          "parameters": {
+            "reference": { "key": "session_timeout_seconds" },
+            "filter": { "value": "update_session_timeout" }
+          }
+        },
+
+        {
+          "destination": { "key": "command_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "toggle_analytics" },
+            "map_to": { "value": "setanalyticscollectionenabled" }
+          }
+        },
+        {
+          "destination": { "path": "analytics_collection_enabled" },
+          "parameters": {
+            "reference": { "key": "analytics_collection_enabled" },
+            "filter": { "value": "toggle_analytics" }
+          }
+        },
+
+        {
+          "destination": { "key": "command_name" },
+          "parameters": {
+            "reference": { "key": "tealium_event" },
+            "filter": { "value": "set_default_params" },
+            "map_to": { "value": "setdefaultparameters" }
+          }
+        },
+        {
+          "destination": { "path": "parameters" },
+          "parameters": {
+            "reference": { "key": "parameters" },
+            "filter": { "value": "set_default_params" }
+          }
+        }
+      ]
+    }
+  }
+}

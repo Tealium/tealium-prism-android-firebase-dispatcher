@@ -1,0 +1,18 @@
+name: "Upload reports"
+description: "Uploads test report artifacts"
+
+inputs:
+  artifact-name:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Upload Reports
+      continue-on-error: true
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: "**/build/reports/**"
+        if-no-files-found: ignore
