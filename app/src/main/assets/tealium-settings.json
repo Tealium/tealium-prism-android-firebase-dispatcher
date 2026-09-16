@@ -1,6 +1,6 @@
 {
   "modules": {
-    "Firebase": {
+    "FirebaseDispatcher": {
       "module_type": "FirebaseDispatcher",
       "configuration": {
         "session_timeout_seconds": 1800,
