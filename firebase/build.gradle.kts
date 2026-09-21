@@ -25,6 +25,10 @@ android {
     defaultConfig {
         minSdk = 23
         buildConfigField("String", "VERSION", "\"$resolvedVersion\"")
+
+        // ComponentDiscoveryService resolves FirebaseKt.DEFAULT_FACTORY by reflection, so R8 must
+        // not strip or rename it in minified consumer apps.
+        consumerProguardFiles.add(file("consumer-rules.pro"))
     }
 
     buildFeatures {
