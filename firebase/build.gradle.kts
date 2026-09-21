@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.tealium.prism"
-version = "0.1.0"
+version = "0.2.0"
 
 // Suffix with -SNAPSHOT when publishing a snapshot build (e.g. -PSNAPSHOT=true).
 val resolvedVersion: String = run {

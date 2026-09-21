@@ -46,7 +46,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.tealium.prism:firebase:0.1.0")
+    implementation("com.tealium.prism:firebase:0.2.0")
 
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-analytics")
@@ -228,8 +228,13 @@ Modules.firebase { builder ->
 > **Note:** Programmatic settings are deep merged onto local and remote settings and always take
 > precedence. Only use them for values that must never be changed remotely.
 >
-> Pass `null` instead of a lambda (`Modules.firebase(null)`) to initialize the module *only* when
-> local or remote settings are provided.
+> The Firebase dispatcher auto-registers as a default module at app startup, so calling
+> `Modules.firebase { }` above is optional and only needed to force settings from code. Passing
+> `null` instead of a lambda (`Modules.firebase(null)`) is no longer necessary either — the module
+> is enabled from settings alone whenever they contain:
+> ```json
+> "modules": { "FirebaseDispatcher": { "module_type": "FirebaseDispatcher", "enabled": true } }
+> ```
 
 ## Settings Builder Reference
 
