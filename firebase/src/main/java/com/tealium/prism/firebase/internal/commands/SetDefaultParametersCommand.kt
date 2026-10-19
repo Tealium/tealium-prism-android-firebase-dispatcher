@@ -11,7 +11,8 @@ import com.tealium.prism.firebase.internal.converters.ParametersBundleConverter
  *
  * Default parameters are automatically included with every event logged to Firebase.
  * They persist across app runs and are of lower precedence than event-level parameters.
- * Missing or empty [FirebaseDestination.DefaultParams] clears all default parameters.
+ * A missing (or non-object) [FirebaseDestination.DefaultParams] clears all default parameters,
+ * while an empty one is a no-op so that a partially-populated dispatch never wipes the defaults.
  *
  * Expected payload:
  * ```json

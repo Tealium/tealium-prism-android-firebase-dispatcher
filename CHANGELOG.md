@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - The Firebase dispatcher now registers itself as a default module at app startup, so it is enabled purely from `SdkSettings` containing a `ModuleSettings` for the Firebase module type, without requiring `TealiumConfig.addModule`.
 
+### Changed
+- Requires Tealium Prism Core 0.7.0+.
+
 ## [0.1.0]
 
 ### Added
