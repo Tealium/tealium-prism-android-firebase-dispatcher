@@ -32,4 +32,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Robolectric-based unit tests.
 - Compose example app demonstrating all commands.
 
+[0.2.0]: https://github.com/Tealium/tealium-prism-android-firebase-dispatcher/releases/tag/0.2.0
 [0.1.0]: https://github.com/Tealium/tealium-prism-android-firebase-dispatcher/releases/tag/0.1.0
