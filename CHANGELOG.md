@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0]
+
+### Added
+- The Firebase dispatcher now registers itself as a default module at app startup, so it is enabled purely from `SdkSettings` containing a `ModuleSettings` for the Firebase module type, without requiring `TealiumConfig.addModule`.
+
+### Changed
+- Requires Tealium Prism Core 0.7.0+.
+
 ## [0.1.0]
 
 ### Added
@@ -24,4 +32,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Robolectric-based unit tests.
 - Compose example app demonstrating all commands.
 
+[0.2.0]: https://github.com/Tealium/tealium-prism-android-firebase-dispatcher/releases/tag/0.2.0
 [0.1.0]: https://github.com/Tealium/tealium-prism-android-firebase-dispatcher/releases/tag/0.1.0

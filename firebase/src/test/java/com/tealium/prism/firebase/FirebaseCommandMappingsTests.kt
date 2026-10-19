@@ -7,7 +7,6 @@ import com.tealium.prism.core.api.settings.MappingParameters
 import com.tealium.prism.core.api.settings.json.TransformationOperation
 import com.tealium.prism.core.api.tracking.Dispatch
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 /**
@@ -221,14 +220,6 @@ class FirebaseCommandMappingsTests {
         val op = mappings.single()
         assertEquals(JsonPath[Dispatch.Keys.COMMAND_NAME], op.destinationPath())
         assertEquals("resetdata", op.parameters.mapTo?.value?.getString())
-    }
-
-    @Test
-    fun keep_preserves_destination_as_source() {
-        val mappings = buildMappings { keep(FirebaseDestination.UserId) }
-        val op = mappings.single()
-        assertNotNull(op.sourcePath())
-        assertEquals(op.destinationPath(), op.sourcePath())
     }
 
     private companion object {

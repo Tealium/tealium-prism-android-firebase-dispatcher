@@ -1,0 +1,8 @@
+{
+  "modules": {
+    "firebase": {
+      "module_type": "FirebaseDispatcher",
+      "enabled": true
+    }
+  }
+}
