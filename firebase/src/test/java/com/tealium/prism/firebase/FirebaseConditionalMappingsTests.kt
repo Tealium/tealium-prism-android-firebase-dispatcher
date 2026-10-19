@@ -5,7 +5,6 @@ import com.tealium.prism.core.api.settings.MappingParameters
 import com.tealium.prism.core.api.settings.json.TransformationOperation
 import com.tealium.prism.core.api.tracking.Dispatch
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -79,15 +78,6 @@ class FirebaseConditionalMappingsTests {
         assertEquals(4, mappings.size)
         assertEquals("logevent", mappings[0].parameters.mapTo?.value?.value)
         assertEquals("setuserid", mappings[2].parameters.mapTo?.value?.value)
-    }
-
-    @Test
-    fun keep_produces_operation_with_same_source_and_destination() {
-        val mappings = buildMappings { keep(FirebaseDestination.UserId) }
-        val op = mappings.single()
-        assertNotNull(op.sourcePath())
-        assertEquals(op.destinationPath(), op.sourcePath())
-        assertNull(op.filterValue())
     }
 
     private companion object {

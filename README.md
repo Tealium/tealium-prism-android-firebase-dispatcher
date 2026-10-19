@@ -10,7 +10,7 @@ Command Dispatcher that routes Tealium Prism tracking events to the Firebase Ana
 |--------------------------|----------|
 | Android API              | 23+      |
 | Kotlin                   | 2.0+     |
-| Tealium Prism Core       | 0.5.0+   |
+| Tealium Prism Core       | 0.7.0+   |
 | Firebase Analytics (BoM) | 34.6.0+  |
 
 ## Installation
@@ -46,7 +46,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.tealium.prism:firebase:0.1.0")
+    implementation("com.tealium.prism:firebase:0.2.0")
 
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-analytics")
@@ -151,7 +151,7 @@ public class ExampleApplication extends Application {
                 Collections.singletonList(firebaseModule())
         ).build();
 
-        Tealium.create(config);
+        Tealium.create(config, null);
     }
 
     private ModuleFactory firebaseModule() {
@@ -228,8 +228,13 @@ Modules.firebase { builder ->
 > **Note:** Programmatic settings are deep merged onto local and remote settings and always take
 > precedence. Only use them for values that must never be changed remotely.
 >
-> Pass `null` instead of a lambda (`Modules.firebase(null)`) to initialize the module *only* when
-> local or remote settings are provided.
+> The Firebase dispatcher auto-registers as a default module at app startup, so calling
+> `Modules.firebase { }` above is optional and only needed to force settings from code. Passing
+> `null` instead of a lambda (`Modules.firebase(null)`) is no longer necessary either — the module
+> is enabled from settings alone whenever they contain:
+> ```json
+> "modules": { "FirebaseDispatcher": { "module_type": "FirebaseDispatcher", "enabled": true } }
+> ```
 
 ## Settings Builder Reference
 
@@ -293,7 +298,7 @@ There are two mapping approaches for this command.
 #### Approach 1 — Explicit event name
 
 `tealium_event` identifies the command type. The Firebase event name is passed as a separate
-`event_name` field in the dispatch data. This is consistent with all other commands.
+`event_name` field in the dispatch data, which reaches the command as is and needs no mapping. This is consistent with all other commands.
 
 **Dispatch data:**
 ```kotlin
@@ -318,10 +323,6 @@ tealium.track(
     }
 },
 {
-    "destination": { "path": "event_name" },
-    "parameters": { "reference": { "key": "event_name" } }
-},
-{
     "destination": { "path": "parameters.value" },
     "parameters": { "reference": { "key": "total" } }
 },
@@ -335,7 +336,6 @@ tealium.track(
 ```kotlin
 builder.setMappings {
     mapCommand(FirebaseCommand.LOG_EVENT).ifValueEquals("tealium_event", "log_event")
-    mapFrom("event_name", FirebaseDestination.EventName)
     mapFrom("total", FirebaseDestination.EventParam(Param.VALUE))
     mapFrom("currency", FirebaseDestination.EventParam(Param.CURRENCY))
 }

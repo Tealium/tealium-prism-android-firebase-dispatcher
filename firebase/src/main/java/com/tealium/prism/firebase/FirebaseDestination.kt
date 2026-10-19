@@ -10,7 +10,7 @@ import com.tealium.prism.firebase.internal.converters.ConsentConverter
  * Type-safe Firebase Analytics mapping destinations.
  *
  * Each case maps to a specific key or path in the Firebase command payload.
- * Use with `CommandMappingsBuilder.mapFrom(…)`, `mapConstant(…)`, and `keep(…)`.
+ * Use with `CommandMappingsBuilder.mapFrom(…)` and `mapConstant(…)`.
  */
 sealed class FirebaseDestination : JsonObjectPathConvertible {
 
