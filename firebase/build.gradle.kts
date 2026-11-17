@@ -1,6 +1,7 @@
 import java.net.URI
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
@@ -23,7 +24,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 23
+        minSdk = 24
         buildConfigField("String", "VERSION", "\"$resolvedVersion\"")
 
         // ComponentDiscoveryService resolves FirebaseKt.DEFAULT_FACTORY by reflection, so R8 must
@@ -50,8 +51,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 
     testOptions {

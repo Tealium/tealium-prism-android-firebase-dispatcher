@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - The release AAR is now minified and obfuscated with R8. The public API is unchanged and the `com.tealium.prism.firebase.internal` package is no longer readable in the published artifact.
-- Updated Firebase BoM to 34.19.0 (Firebase Analytics 23.2.0) and Kotlin to 2.1.0.
+- **Breaking:** minSdk raised to 24, as required by Firebase BoM 35 (Firebase Analytics 24.0.0).
+- Updated Firebase BoM to 35.2.0 and Kotlin to 2.3.0. Consuming apps need Kotlin 2.2 or later.
 
 ## [0.2.0]
 
