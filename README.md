@@ -46,7 +46,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.tealium.prism:firebase:0.2.0")
+    implementation("com.tealium.prism:firebase:0.3.0")
 
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-analytics")
