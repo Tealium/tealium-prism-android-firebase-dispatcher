@@ -1,3 +1,4 @@
+import com.android.build.api.variant.HostTestBuilder
 import java.net.URI
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
@@ -64,6 +65,14 @@ android {
 
     publishing {
         singleVariant("release")
+    }
+}
+
+// Release unit tests run against the R8 output, where the internal package is obfuscated, so
+// they fail with NoClassDefFoundError. Unit tests run on the debug variant only.
+androidComponents {
+    beforeVariants(selector().withBuildType("release")) {
+        it.hostTests.getValue(HostTestBuilder.UNIT_TEST_TYPE).enable = false
     }
 }
 
