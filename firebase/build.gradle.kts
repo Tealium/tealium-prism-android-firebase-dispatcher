@@ -1,6 +1,8 @@
+import com.android.build.api.variant.HostTestBuilder
 import java.net.URI
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
@@ -23,7 +25,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 23
+        minSdk = 24
         buildConfigField("String", "VERSION", "\"$resolvedVersion\"")
 
         // ComponentDiscoveryService resolves FirebaseKt.DEFAULT_FACTORY by reflection, so R8 must
@@ -37,7 +39,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
@@ -46,8 +52,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 
     testOptions {
@@ -57,6 +65,14 @@ android {
 
     publishing {
         singleVariant("release")
+    }
+}
+
+// Release unit tests run against the R8 output, where the internal package is obfuscated, so
+// they fail with NoClassDefFoundError. Unit tests run on the debug variant only.
+androidComponents {
+    beforeVariants(selector().withBuildType("release")) {
+        it.hostTests.getValue(HostTestBuilder.UNIT_TEST_TYPE).enable = false
     }
 }
 

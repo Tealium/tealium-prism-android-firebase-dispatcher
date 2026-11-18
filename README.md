@@ -8,10 +8,10 @@ Command Dispatcher that routes Tealium Prism tracking events to the Firebase Ana
 
 | Dependency               | Version  |
 |--------------------------|----------|
-| Android API              | 23+      |
-| Kotlin                   | 2.0+     |
+| Android API              | 24+      |
+| Kotlin                   | 2.2+     |
 | Tealium Prism Core       | 0.7.0+   |
-| Firebase Analytics (BoM) | 34.6.0+  |
+| Firebase Analytics (BoM) | 35.2.0+  |
 
 ## Installation
 
@@ -48,7 +48,7 @@ plugins {
 dependencies {
     implementation("com.tealium.prism:firebase:0.3.0")
 
-    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:35.2.0"))
     implementation("com.google.firebase:firebase-analytics")
 }
 ```

@@ -1,5 +1,5 @@
 name: "Setup Android Env"
-description: "Checkout, install Java and Gradle"
+description: "Install Java and Gradle"
 
 inputs:
   java-version:

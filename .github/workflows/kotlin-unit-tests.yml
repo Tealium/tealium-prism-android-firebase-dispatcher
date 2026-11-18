@@ -22,5 +22,6 @@ jobs:
         run: ./gradlew :firebase:testDebugUnitTest
 
       - uses: ./.github/actions/upload-reports
+        if: ${{ always() }}
         with:
           artifact-name: Reports-Unit-Tests
