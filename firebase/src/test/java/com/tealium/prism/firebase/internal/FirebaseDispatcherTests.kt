@@ -145,6 +145,31 @@ class FirebaseDispatcherTests {
     }
 
     @Test
+    fun dispatch_with_invalid_payload_still_completes() {
+        val dispatcher = newDispatcher()
+        val dispatch = Dispatch.create(
+            "invalid",
+            dataObject = DataObject.create {
+                put(
+                    Dispatch.Keys.COMMAND_NAME,
+                    listOf(
+                        FirebaseCommand.LOG_EVENT.commandName,
+                        FirebaseCommand.SET_USER_ID.commandName,
+                    ).asDataList(),
+                )
+                put("user_id", "user_123")
+            },
+        )
+        val callback = mockk<Callback<List<Dispatch>>>(relaxed = true)
+
+        dispatcher.dispatch(listOf(dispatch), callback)
+
+        verify(exactly = 0) { firebase.logEvent(any(), any()) }
+        verify(exactly = 1) { firebase.setUserId("user_123") }
+        verify(exactly = 1) { callback.onComplete(listOf(dispatch)) }
+    }
+
+    @Test
     fun dispatch_without_command_key_still_completes() {
         val dispatcher = newDispatcher()
         val dispatch = Dispatch.create(

@@ -23,16 +23,22 @@ internal object ConsentConverter {
     private val rawByType: Map<ConsentType, String> =
         typeByRaw.entries.associate { (raw, type) -> type to raw }
 
-    private val statusByRaw: Map<String, ConsentStatus> = mapOf(
+    /**
+     * The consent statuses keyed by their raw value, for use with `DataObject.requireOneOf`.
+     */
+    val statuses: Map<String, ConsentStatus> = mapOf(
         "granted" to ConsentStatus.GRANTED,
         "denied" to ConsentStatus.DENIED,
     )
+
+    /** The known raw consent types, comma separated and sorted, for error messages. */
+    val typeNames: String = typeByRaw.keys.sorted().joinToString(", ")
 
     fun typeOrNull(raw: String): ConsentType? =
         typeByRaw[raw.lowercase()]
 
     fun statusOrNull(raw: String): ConsentStatus? =
-        statusByRaw[raw.lowercase()]
+        statuses[raw.lowercase()]
 
     fun rawValue(type: ConsentType): String =
         rawByType[type] ?: type.name.lowercase()

@@ -1,6 +1,8 @@
 package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.Command
+import com.tealium.prism.core.api.data.LenientConverters
+import com.tealium.prism.core.api.data.require
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -22,8 +24,8 @@ import com.tealium.prism.firebase.internal.FirebaseConstants
  * ```
  */
 internal fun setSessionTimeoutCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    synchronous(FirebaseCommand.SET_SESSION_TIMEOUT) { payload ->
-        val seconds = payload.requireDouble(FirebaseDestination.SessionTimeout)
+    Command.synchronous(FirebaseCommand.SET_SESSION_TIMEOUT) { payload ->
+        val seconds = payload.require(FirebaseDestination.SessionTimeout, LenientConverters.DOUBLE)
         val millis = (seconds * FirebaseConstants.MILLISECONDS_PER_SECOND).toLong()
         firebaseInstance.setSessionTimeoutDuration(millis)
     }

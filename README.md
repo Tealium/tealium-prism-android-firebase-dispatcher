@@ -10,7 +10,7 @@ Command Dispatcher that routes Tealium Prism tracking events to the Firebase Ana
 |--------------------------|----------|
 | Android API              | 24+      |
 | Kotlin                   | 2.2+     |
-| Tealium Prism Core       | 0.7.0+   |
+| Tealium Prism Core       | 0.8.0+   |
 | Firebase Analytics (BoM) | 35.2.0+  |
 
 ## Installation
@@ -292,6 +292,8 @@ Logs an event to Firebase Analytics. Supports predefined Firebase events and cus
 optional parameters and nested item arrays for e-commerce.
 
 **command_name:** `logevent`
+
+A missing or blank `event_name` fails the command, since Firebase Analytics drops events without a name.
 
 There are two mapping approaches for this command.
 
@@ -716,10 +718,10 @@ builder.setMappings {
 | `ad_user_data`       | `ConsentSetting(ConsentType.AD_USER_DATA)`         | `granted`, `denied`  |
 | `ad_personalization` | `ConsentSetting(ConsentType.AD_PERSONALIZATION)`   | `granted`, `denied`  |
 
-> Type and status strings are matched case-insensitively. An unknown consent type or status fails the
-> command — the Android SDK enums are closed, so an unrecognized value cannot be forwarded, and failing
-> loud surfaces the configuration mistake instead of silently dropping the entry. A `consent_settings`
-> object that resolves to no valid entries also fails.
+> Type and status strings are matched case-insensitively, and status strings are trimmed. An unknown
+> consent type or status fails the command — the Android SDK enums are closed, so an unrecognized value
+> cannot be forwarded, and failing loud surfaces the configuration mistake instead of silently dropping
+> the entry. A blank or `null` status and an empty `consent_settings` object also fail.
 
 ---
 

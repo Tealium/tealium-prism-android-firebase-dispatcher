@@ -3,7 +3,9 @@ package com.tealium.prism.firebase.internal.commands
 import com.tealium.prism.core.api.command.Command
 import com.tealium.prism.core.api.command.CommandException
 import com.tealium.prism.core.api.data.DataItem
+import com.tealium.prism.core.api.data.ExtractionException
 import com.tealium.prism.core.api.data.LenientConverters
+import com.tealium.prism.core.api.data.requireDataItem
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -12,7 +14,8 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * Sets one or many Firebase Analytics user properties.
  *
  * Handles both scalar and parallel-array payload shapes. Values persist across sessions.
- * Empty string clears the property.
+ * Empty string clears the property. Names that cannot be read as a string are skipped; the
+ * command fails when no name is left, or when the two arrays have different lengths.
  *
  * Single property:
  * ```json
@@ -33,22 +36,17 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * ```
  */
 internal fun setUserPropertyCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    synchronous(FirebaseCommand.SET_USER_PROPERTY) { payload ->
+    Command.synchronous(FirebaseCommand.SET_USER_PROPERTY) { payload ->
         val namesPath = FirebaseDestination.UserPropertyName.asJsonObjectPath()
         val valuesPath = FirebaseDestination.UserPropertyValue.asJsonObjectPath()
-        val namesItem = payload.extract(namesPath)
-            ?: throw CommandException.missingParameter(namesPath.toString())
-        val valuesItem = payload.extract(valuesPath)
-            ?: throw CommandException.missingParameter(valuesPath.toString())
+        val namesItem = payload.requireDataItem(namesPath)
+        val valuesItem = payload.requireDataItem(valuesPath)
 
         val names = extractStringList(namesItem)
         val values = extractStringList(valuesItem)
 
-        if (names.isEmpty()) {
-            throw CommandException.emptyArray(namesPath.toString())
-        }
         if (names.all { it == null }) {
-            throw CommandException.emptyArray(namesPath.toString())
+            throw ExtractionException.Empty(namesPath.toString())
         }
         if (names.size != values.size) {
             throw CommandException.arrayLengthMismatch(

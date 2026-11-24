@@ -1,6 +1,9 @@
 package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.Command
+import com.tealium.prism.core.api.data.LenientConverters
+import com.tealium.prism.core.api.data.extract
+import com.tealium.prism.core.api.data.requireNonBlank
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -43,10 +46,12 @@ import com.tealium.prism.firebase.internal.converters.ParametersBundleConverter
  *   }
  * }
  * ```
+ *
+ * A blank `event_name` fails the command, since Firebase Analytics drops events without a name.
  */
 internal fun logEventCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    synchronous(FirebaseCommand.LOG_EVENT) { payload ->
-        val eventName = payload.requireString(FirebaseDestination.EventName)
+    Command.synchronous(FirebaseCommand.LOG_EVENT) { payload ->
+        val eventName = payload.requireNonBlank(FirebaseDestination.EventName, LenientConverters.STRING)
         val bundle = payload.extract(FirebaseDestination.EventParams, ParametersBundleConverter)
 
         firebaseInstance.logEvent(eventName, bundle)
