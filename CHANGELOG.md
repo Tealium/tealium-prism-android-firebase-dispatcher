@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Breaking:** requires Tealium Prism Core 0.8.0+.
 - Command payloads are read with the Prism 0.8.0 extraction helpers. An invalid parameter now fails the command with `CommandException.invalidPayload`, whose cause is the matching `ExtractionException` (`Missing`, `TypeMismatch`, `InvalidValue` or `Empty`). The error messages, shown only in the `CommandDispatcher` log, changed accordingly and never include the parameter's value.
-- `logevent` fails when `event_name` is blank, since Firebase Analytics drops events without a name.
+- `logevent` fails when `event_name` is blank. Firebase Analytics requires event names of 1 to 40 characters that start with a letter.
 - `setconsent` trims the consent status before matching it, and reports a blank or `null` status as such.
 - The release AAR is now minified and obfuscated with R8. The public API is unchanged and the `com.tealium.prism.firebase.internal` package is no longer readable in the published artifact.
 - **Breaking:** minSdk raised to 24, as required by Firebase BoM 35 (Firebase Analytics 24.0.0).

@@ -47,7 +47,8 @@ import com.tealium.prism.firebase.internal.converters.ParametersBundleConverter
  * }
  * ```
  *
- * A blank `event_name` fails the command, since Firebase Analytics drops events without a name.
+ * A missing or blank `event_name` fails the command. Firebase Analytics requires event names of
+ * 1 to 40 characters that start with a letter.
  */
 internal fun logEventCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
     Command.synchronous(FirebaseCommand.LOG_EVENT) { payload ->
