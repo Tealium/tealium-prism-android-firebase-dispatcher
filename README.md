@@ -526,8 +526,8 @@ builder.setMappings {
 }
 ```
 
-> Numbers and booleans are sent as strings (`42` becomes `"42"`). An empty string or `null` as
-> `property_value` removes that property from Firebase. Array names that can't be converted, such as `null`
+> Numbers and booleans are sent as strings (`42` becomes `"42"`). An empty string, `null`, or a value that
+> can't be converted, such as an object, as `property_value` removes that property from Firebase. Array names that can't be converted, such as `null`
 > or an object, are skipped.
 >
 > The command fails if:

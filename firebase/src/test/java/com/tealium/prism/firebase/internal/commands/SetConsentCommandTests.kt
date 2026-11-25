@@ -113,6 +113,10 @@ class SetConsentCommandTests {
 
         val error = result.assertFailure<ExtractionException.InvalidValue>()
         assertEquals("consent_settings.future_flag", error.key)
+        assertEquals(
+            "unknown consent type, expected one of ad_personalization, ad_storage, ad_user_data, analytics_storage",
+            error.reason,
+        )
         verify(exactly = 0) { firebase.setConsent(any()) }
     }
 
@@ -131,6 +135,18 @@ class SetConsentCommandTests {
         val result = runCommand(command, consentPayload("ad_storage" to 42))
 
         val error = result.assertFailure<ExtractionException.InvalidValue>()
+        assertEquals("consent_settings.ad_storage", error.key)
+        verify(exactly = 0) { firebase.setConsent(any()) }
+    }
+
+    @Test
+    fun object_status_value_fails_with_type_mismatch() {
+        val result = runCommand(
+            command,
+            consentPayload("ad_storage" to DataObject.create { put("status", "granted") }),
+        )
+
+        val error = result.assertFailure<ExtractionException.TypeMismatch>()
         assertEquals("consent_settings.ad_storage", error.key)
         verify(exactly = 0) { firebase.setConsent(any()) }
     }

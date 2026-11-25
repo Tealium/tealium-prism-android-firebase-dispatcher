@@ -152,6 +152,64 @@ class SetUserPropertyCommandTests {
     }
 
     @Test
+    fun coerces_boolean_and_whole_double_values_to_strings() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataList.create { add("opted_in"); add("count") })
+                put("property_value", DataList.create { add(true); add(1.0) })
+            },
+        )
+        assertTrue(result.isSuccess)
+        verifySequence {
+            firebase.setUserProperty("opted_in", "true")
+            firebase.setUserProperty("count", "1")
+        }
+    }
+
+    @Test
+    fun null_value_clears_property() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", "tier")
+                put("property_value", DataItem.NULL)
+            },
+        )
+        assertTrue(result.isSuccess)
+        verify(exactly = 1) { firebase.setUserProperty("tier", null) }
+    }
+
+    @Test
+    fun null_value_in_array_clears_that_property() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataList.fromStringCollection(listOf("tier", "level")))
+                put("property_value", DataList.create { add(DataItem.NULL); add("expert") })
+            },
+        )
+        assertTrue(result.isSuccess)
+        verifySequence {
+            firebase.setUserProperty("tier", null)
+            firebase.setUserProperty("level", "expert")
+        }
+    }
+
+    @Test
+    fun value_that_cannot_be_read_as_string_clears_property() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", "tier")
+                put("property_value", DataObject.create { put("nested", "object") })
+            },
+        )
+        assertTrue(result.isSuccess)
+        verify(exactly = 1) { firebase.setUserProperty("tier", null) }
+    }
+
+    @Test
     fun skips_array_names_that_cannot_be_read_as_string() {
         val result = runCommand(
             command,

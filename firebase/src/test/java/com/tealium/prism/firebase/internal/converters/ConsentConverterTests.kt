@@ -1,6 +1,5 @@
 package com.tealium.prism.firebase.internal.converters
 
-
 import com.google.firebase.analytics.FirebaseAnalytics.ConsentType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -26,7 +25,6 @@ class ConsentConverterTests {
     fun typeOrNull_returns_null_for_unknown_raw_values() {
         assertNull(ConsentConverter.typeOrNull("future_consent_flag"))
     }
-
 
     @Test
     fun rawValue_returns_spec_string_for_known_types() {
