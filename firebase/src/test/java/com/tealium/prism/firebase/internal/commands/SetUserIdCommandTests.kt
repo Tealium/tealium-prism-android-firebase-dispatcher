@@ -1,5 +1,6 @@
 package com.tealium.prism.firebase.internal.commands
 
+import com.tealium.prism.core.api.data.DataItem
 import com.tealium.prism.core.api.data.DataObject
 import com.tealium.prism.core.api.data.ExtractionException
 import com.tealium.prism.firebase.helpers.assertFailure
@@ -33,6 +34,15 @@ class SetUserIdCommandTests {
     @Test
     fun missing_parameter_fails_with_missing() {
         val result = runCommand(command, DataObject.create {})
+
+        val error = result.assertFailure<ExtractionException.Missing>()
+        assertEquals("user_id", error.key)
+        verify(exactly = 0) { firebase.setUserId(any()) }
+    }
+
+    @Test
+    fun null_value_fails_with_missing() {
+        val result = runCommand(command, DataObject.create { put("user_id", DataItem.NULL) })
 
         val error = result.assertFailure<ExtractionException.Missing>()
         assertEquals("user_id", error.key)

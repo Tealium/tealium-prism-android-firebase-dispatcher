@@ -37,8 +37,6 @@ internal object ConsentConverter {
     fun typeOrNull(raw: String): ConsentType? =
         typeByRaw[raw.lowercase()]
 
-    fun statusOrNull(raw: String): ConsentStatus? =
-        statuses[raw.lowercase()]
 
     fun rawValue(type: ConsentType): String =
         rawByType[type] ?: type.name.lowercase()

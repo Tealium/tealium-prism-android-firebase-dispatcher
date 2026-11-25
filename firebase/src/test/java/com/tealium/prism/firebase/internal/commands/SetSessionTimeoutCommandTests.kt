@@ -1,5 +1,6 @@
 package com.tealium.prism.firebase.internal.commands
 
+import com.tealium.prism.core.api.data.DataItem
 import com.tealium.prism.core.api.data.DataObject
 import com.tealium.prism.core.api.data.ExtractionException
 import com.tealium.prism.firebase.helpers.assertFailure
@@ -40,6 +41,15 @@ class SetSessionTimeoutCommandTests {
     @Test
     fun missing_parameter_fails_with_missing() {
         val result = runCommand(command, DataObject.create {})
+
+        val error = result.assertFailure<ExtractionException.Missing>()
+        assertEquals("session_timeout_seconds", error.key)
+        verify(exactly = 0) { firebase.setSessionTimeoutDuration(any()) }
+    }
+
+    @Test
+    fun null_value_fails_with_missing() {
+        val result = runCommand(command, DataObject.create { put("session_timeout_seconds", DataItem.NULL) })
 
         val error = result.assertFailure<ExtractionException.Missing>()
         assertEquals("session_timeout_seconds", error.key)

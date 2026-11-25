@@ -1,6 +1,7 @@
 package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.CommandException
+import com.tealium.prism.core.api.data.DataItem
 import com.tealium.prism.core.api.data.DataList
 import com.tealium.prism.core.api.data.DataObject
 import com.tealium.prism.core.api.data.ExtractionException
@@ -70,7 +71,30 @@ class SetUserPropertyCommandTests {
                 put("property_value", DataList.fromStringCollection(listOf("premium")))
             },
         )
-        result.assertFailure<CommandException>()
+
+        val error = result.assertFailure<CommandException>()
+        assertEquals(
+            CommandException.arrayLengthMismatch("property_name", "property_value").message,
+            error.message,
+        )
+        verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
+    }
+
+    @Test
+    fun array_length_mismatch_is_reported_before_null_names() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataList.create { add(DataItem.NULL) })
+                put("property_value", DataList.fromStringCollection(listOf("value_a", "value_b")))
+            },
+        )
+
+        val error = result.assertFailure<CommandException>()
+        assertEquals(
+            CommandException.arrayLengthMismatch("property_name", "property_value").message,
+            error.message,
+        )
         verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
     }
 
@@ -109,6 +133,41 @@ class SetUserPropertyCommandTests {
         )
         assertTrue(result.isSuccess)
         verify(exactly = 1) { firebase.setUserProperty("score", "9.5") }
+    }
+
+    @Test
+    fun coerces_numeric_array_entries_to_strings() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataList.create { add(42); add("tier") })
+                put("property_value", DataList.create { add(1); add(9.5) })
+            },
+        )
+        assertTrue(result.isSuccess)
+        verifySequence {
+            firebase.setUserProperty("42", "1")
+            firebase.setUserProperty("tier", "9.5")
+        }
+    }
+
+    @Test
+    fun skips_array_names_that_cannot_be_read_as_string() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put(
+                    "property_name",
+                    DataList.create {
+                        add(DataObject.create { put("nested", "object") })
+                        add("tier")
+                    },
+                )
+                put("property_value", DataList.fromStringCollection(listOf("ignored", "premium")))
+            },
+        )
+        assertTrue(result.isSuccess)
+        verifySequence { firebase.setUserProperty("tier", "premium") }
     }
 
     @Test
@@ -154,11 +213,27 @@ class SetUserPropertyCommandTests {
     }
 
     @Test
-    fun unconvertible_name_fails_with_empty() {
+    fun non_string_name_fails_with_type_mismatch() {
         val result = runCommand(
             command,
             DataObject.create {
                 put("property_name", DataObject.create { put("nested", "object") })
+                put("property_value", "premium")
+            },
+        )
+
+        val error = result.assertFailure<ExtractionException.TypeMismatch>()
+        assertEquals("property_name", error.key)
+        assertEquals("String or array of String", error.expectedType)
+        verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
+    }
+
+    @Test
+    fun null_name_fails_with_empty() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataItem.NULL)
                 put("property_value", "premium")
             },
         )

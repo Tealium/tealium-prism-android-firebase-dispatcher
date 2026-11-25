@@ -3,6 +3,7 @@ package com.tealium.prism.firebase.internal.commands
 import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.tealium.prism.core.api.command.CommandException
+import com.tealium.prism.core.api.data.DataItem
 import com.tealium.prism.core.api.data.DataList
 import com.tealium.prism.core.api.data.DataObject
 import com.tealium.prism.core.api.data.ExtractionException
@@ -233,6 +234,15 @@ class LogEventCommandTests {
     @Test
     fun missing_event_name_fails_with_missing() {
         val result = runCommand(command, DataObject.create {})
+
+        val error = result.assertFailure<ExtractionException.Missing>()
+        assertEquals("event_name", error.key)
+        verify(exactly = 0) { firebase.logEvent(any(), any()) }
+    }
+
+    @Test
+    fun null_event_name_fails_with_missing() {
+        val result = runCommand(command, DataObject.create { put("event_name", DataItem.NULL) })
 
         val error = result.assertFailure<ExtractionException.Missing>()
         assertEquals("event_name", error.key)
