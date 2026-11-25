@@ -1,14 +1,17 @@
 package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.CommandException
+import com.tealium.prism.core.api.data.DataItem
 import com.tealium.prism.core.api.data.DataList
 import com.tealium.prism.core.api.data.DataObject
+import com.tealium.prism.core.api.data.ExtractionException
+import com.tealium.prism.firebase.helpers.assertFailure
 import com.tealium.prism.firebase.helpers.runCommand
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -68,18 +71,42 @@ class SetUserPropertyCommandTests {
                 put("property_value", DataList.fromStringCollection(listOf("premium")))
             },
         )
-        assertFalse(result.isSuccess)
-        assertTrue(result.exceptionOrNull() is CommandException)
+
+        val error = result.assertFailure<CommandException>()
+        assertEquals(
+            CommandException.arrayLengthMismatch("property_name", "property_value").message,
+            error.message,
+        )
         verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
     }
 
     @Test
-    fun missing_name_fails() {
+    fun array_length_mismatch_is_reported_before_null_names() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataList.create { add(DataItem.NULL) })
+                put("property_value", DataList.fromStringCollection(listOf("value_a", "value_b")))
+            },
+        )
+
+        val error = result.assertFailure<CommandException>()
+        assertEquals(
+            CommandException.arrayLengthMismatch("property_name", "property_value").message,
+            error.message,
+        )
+        verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
+    }
+
+    @Test
+    fun missing_name_fails_with_missing() {
         val result = runCommand(
             command,
             DataObject.create { put("property_value", "premium") },
         )
-        assertFalse(result.isSuccess)
+
+        val error = result.assertFailure<ExtractionException.Missing>()
+        assertEquals("property_name", error.key)
     }
 
     @Test
@@ -109,7 +136,100 @@ class SetUserPropertyCommandTests {
     }
 
     @Test
-    fun all_null_names_array_fails_with_emptyArray() {
+    fun coerces_numeric_array_entries_to_strings() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataList.create { add(42); add("tier") })
+                put("property_value", DataList.create { add(1); add(9.5) })
+            },
+        )
+        assertTrue(result.isSuccess)
+        verifySequence {
+            firebase.setUserProperty("42", "1")
+            firebase.setUserProperty("tier", "9.5")
+        }
+    }
+
+    @Test
+    fun coerces_boolean_and_whole_double_values_to_strings() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataList.create { add("opted_in"); add("count") })
+                put("property_value", DataList.create { add(true); add(1.0) })
+            },
+        )
+        assertTrue(result.isSuccess)
+        verifySequence {
+            firebase.setUserProperty("opted_in", "true")
+            firebase.setUserProperty("count", "1")
+        }
+    }
+
+    @Test
+    fun null_value_clears_property() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", "tier")
+                put("property_value", DataItem.NULL)
+            },
+        )
+        assertTrue(result.isSuccess)
+        verify(exactly = 1) { firebase.setUserProperty("tier", null) }
+    }
+
+    @Test
+    fun null_value_in_array_clears_that_property() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataList.fromStringCollection(listOf("tier", "level")))
+                put("property_value", DataList.create { add(DataItem.NULL); add("expert") })
+            },
+        )
+        assertTrue(result.isSuccess)
+        verifySequence {
+            firebase.setUserProperty("tier", null)
+            firebase.setUserProperty("level", "expert")
+        }
+    }
+
+    @Test
+    fun value_that_cannot_be_read_as_string_clears_property() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", "tier")
+                put("property_value", DataObject.create { put("nested", "object") })
+            },
+        )
+        assertTrue(result.isSuccess)
+        verify(exactly = 1) { firebase.setUserProperty("tier", null) }
+    }
+
+    @Test
+    fun skips_array_names_that_cannot_be_read_as_string() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put(
+                    "property_name",
+                    DataList.create {
+                        add(DataObject.create { put("nested", "object") })
+                        add("tier")
+                    },
+                )
+                put("property_value", DataList.fromStringCollection(listOf("ignored", "premium")))
+            },
+        )
+        assertTrue(result.isSuccess)
+        verifySequence { firebase.setUserProperty("tier", "premium") }
+    }
+
+    @Test
+    fun all_null_names_array_fails_with_empty() {
         val result = runCommand(
             command,
             DataObject.create {
@@ -117,26 +237,41 @@ class SetUserPropertyCommandTests {
                 put("property_value", DataList.fromStringCollection(listOf("value_a", "value_b")))
             },
         )
-        assertFalse(result.isSuccess)
-        val exception = result.exceptionOrNull()
-        assertTrue(exception is CommandException)
-        assertTrue(exception!!.message!!.contains("empty"))
+
+        val error = result.assertFailure<ExtractionException.Empty>()
+        assertEquals("property_name", error.key)
         verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
     }
 
     @Test
-    fun missing_value_fails() {
+    fun empty_names_array_fails_with_empty() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataList.EMPTY_LIST)
+                put("property_value", DataList.EMPTY_LIST)
+            },
+        )
+
+        val error = result.assertFailure<ExtractionException.Empty>()
+        assertEquals("property_name", error.key)
+        verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
+    }
+
+    @Test
+    fun missing_value_fails_with_missing() {
         val result = runCommand(
             command,
             DataObject.create { put("property_name", "tier") },
         )
-        assertFalse(result.isSuccess)
-        assertTrue(result.exceptionOrNull() is CommandException)
+
+        val error = result.assertFailure<ExtractionException.Missing>()
+        assertEquals("property_value", error.key)
         verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
     }
 
     @Test
-    fun unconvertible_name_fails() {
+    fun non_string_name_fails_with_type_mismatch() {
         val result = runCommand(
             command,
             DataObject.create {
@@ -144,8 +279,25 @@ class SetUserPropertyCommandTests {
                 put("property_value", "premium")
             },
         )
-        assertFalse(result.isSuccess)
-        assertTrue(result.exceptionOrNull() is CommandException)
+
+        val error = result.assertFailure<ExtractionException.TypeMismatch>()
+        assertEquals("property_name", error.key)
+        assertEquals("String or array of String", error.expectedType)
+        verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
+    }
+
+    @Test
+    fun null_name_fails_with_empty() {
+        val result = runCommand(
+            command,
+            DataObject.create {
+                put("property_name", DataItem.NULL)
+                put("property_value", "premium")
+            },
+        )
+
+        val error = result.assertFailure<ExtractionException.Empty>()
+        assertEquals("property_name", error.key)
         verify(exactly = 0) { firebase.setUserProperty(any(), any()) }
     }
 

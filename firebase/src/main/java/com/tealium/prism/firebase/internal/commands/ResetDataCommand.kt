@@ -16,6 +16,6 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * ```
  */
 internal fun resetDataCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    synchronous(FirebaseCommand.RESET_DATA) {
+    Command.synchronous(FirebaseCommand.RESET_DATA) {
         firebaseInstance.resetAnalyticsData()
     }

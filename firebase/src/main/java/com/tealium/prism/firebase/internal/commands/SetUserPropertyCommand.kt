@@ -3,7 +3,9 @@ package com.tealium.prism.firebase.internal.commands
 import com.tealium.prism.core.api.command.Command
 import com.tealium.prism.core.api.command.CommandException
 import com.tealium.prism.core.api.data.DataItem
+import com.tealium.prism.core.api.data.ExtractionException
 import com.tealium.prism.core.api.data.LenientConverters
+import com.tealium.prism.core.api.data.requireDataItem
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -12,7 +14,14 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * Sets one or many Firebase Analytics user properties.
  *
  * Handles both scalar and parallel-array payload shapes. Values persist across sessions.
- * Empty string clears the property.
+ * Empty string clears the property. Names and values are read leniently, so numbers and booleans
+ * become strings.
+ *
+ * The payload is checked in this order:
+ * 1. `property_name` must be a value that can be read as a string, or an array; otherwise
+ *    the command fails with a type mismatch.
+ * 2. `property_name` and `property_value` must have the same length (a single value counts as one).
+ * 3. At least one name must be usable. Array entries that cannot be read as a string are skipped.
  *
  * Single property:
  * ```json
@@ -33,28 +42,22 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * ```
  */
 internal fun setUserPropertyCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    synchronous(FirebaseCommand.SET_USER_PROPERTY) { payload ->
+    Command.synchronous(FirebaseCommand.SET_USER_PROPERTY) { payload ->
         val namesPath = FirebaseDestination.UserPropertyName.asJsonObjectPath()
         val valuesPath = FirebaseDestination.UserPropertyValue.asJsonObjectPath()
-        val namesItem = payload.extract(namesPath)
-            ?: throw CommandException.missingParameter(namesPath.toString())
-        val valuesItem = payload.extract(valuesPath)
-            ?: throw CommandException.missingParameter(valuesPath.toString())
+        val names = payload.requireDataItem(namesPath).toStringList()
+            ?: throw ExtractionException.TypeMismatch(namesPath.toString(), NAMES_EXPECTED_TYPE)
+        // A value that can't be read as a string clears the property, like an explicit null.
+        val values = payload.requireDataItem(valuesPath).toStringList() ?: listOf(null)
 
-        val names = extractStringList(namesItem)
-        val values = extractStringList(valuesItem)
-
-        if (names.isEmpty()) {
-            throw CommandException.emptyArray(namesPath.toString())
-        }
-        if (names.all { it == null }) {
-            throw CommandException.emptyArray(namesPath.toString())
-        }
         if (names.size != values.size) {
             throw CommandException.arrayLengthMismatch(
                 namesPath.toString(),
                 valuesPath.toString(),
             )
+        }
+        if (names.all { it == null }) {
+            throw ExtractionException.Empty(namesPath.toString())
         }
 
         for ((index, rawName) in names.withIndex()) {
@@ -65,14 +68,25 @@ internal fun setUserPropertyCommand(firebaseInstance: FirebaseAnalyticsInterface
         }
     }
 
+private const val NAMES_EXPECTED_TYPE = "String or array of String"
+
 /**
- * Extracts a payload item as a list of (nullable) strings, accepting either a single
- * scalar value or an array. Used by [setUserPropertyCommand] to handle both the scalar
- * and parallel-array shapes of the user property payload.
+ * Reads this payload item as a list of strings, accepting either a single value or an array.
+ * Used by [setUserPropertyCommand] to handle both the scalar and parallel-array shapes of the
+ * user property payload.
+ *
+ * Every value is read with [LenientConverters.STRING]. An array entry that can't be read as a
+ * string, and an explicit `null`, become `null`.
+ *
+ * @return The strings; or `null` if this item is neither an array, `null`, nor a value that can be
+ * read as a string.
  */
-private fun extractStringList(item: DataItem): List<String?> {
-    item.getDataList()?.let { list ->
-        return (0 until list.size).map { list.getString(it) }
+private fun DataItem.toStringList(): List<String?>? {
+    getDataList()?.let { list ->
+        return list.map(LenientConverters.STRING::convert)
     }
-    return listOf(LenientConverters.STRING.convert(item))
+    if (isNull()) {
+        return listOf(null)
+    }
+    return LenientConverters.STRING.convert(this)?.let(::listOf)
 }

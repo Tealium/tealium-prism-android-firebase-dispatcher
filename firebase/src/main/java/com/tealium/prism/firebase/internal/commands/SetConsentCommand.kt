@@ -2,7 +2,9 @@ package com.tealium.prism.firebase.internal.commands
 
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.tealium.prism.core.api.command.Command
-import com.tealium.prism.core.api.command.CommandException
+import com.tealium.prism.core.api.data.ExtractionException
+import com.tealium.prism.core.api.data.requireDataObject
+import com.tealium.prism.core.api.data.requireOneOf
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.converters.ConsentConverter
@@ -16,7 +18,7 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * configuration mistakes instead of silently discarding the entry.
  *
  * Known types: `ad_storage`, `analytics_storage`, `ad_user_data`, `ad_personalization`.
- * Known values: `granted`, `denied`.
+ * Known values: `granted`, `denied`. Both are matched ignoring case, and values are trimmed.
  *
  * Expected payload:
  * ```json
@@ -32,33 +34,22 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
  * ```
  */
 internal fun setConsentCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    synchronous(FirebaseCommand.SET_CONSENT) { payload ->
+    Command.synchronous(FirebaseCommand.SET_CONSENT) { payload ->
         val path = FirebaseDestination.ConsentSettings.asJsonObjectPath()
-        val consentDict = payload.extractDataObject(path)
-            ?: throw CommandException.missingParameter(path.toString())
-
-        val settings = mutableMapOf<FirebaseAnalytics.ConsentType, FirebaseAnalytics.ConsentStatus>()
-        for ((key, value) in consentDict) {
-            val rawStatus = value.getString()
-                ?: throw CommandException.invalidParameterType(
-                    "${path}.$key",
-                    "string consent status",
-                )
-            val type = ConsentConverter.typeOrNull(key)
-                ?: throw CommandException.invalidParameterType(
-                    "${path}.$key",
-                    "known consent type (ad_storage, analytics_storage, ad_user_data, ad_personalization)",
-                )
-            val status = ConsentConverter.statusOrNull(rawStatus)
-                ?: throw CommandException.invalidParameterType(
-                    "${path}.$key=$rawStatus",
-                    "known consent status (granted, denied)",
-                )
-            settings[type] = status
+        val consentDict = payload.requireDataObject(path)
+        if (consentDict.size == 0) {
+            throw ExtractionException.Empty(path.toString())
         }
 
-        if (settings.isEmpty()) {
-            throw CommandException.noValidParameters()
+        val settings = mutableMapOf<FirebaseAnalytics.ConsentType, FirebaseAnalytics.ConsentStatus>()
+        for ((key, _) in consentDict) {
+            val settingPath = path.key(key)
+            val type = ConsentConverter.typeOrNull(key)
+                ?: throw ExtractionException.InvalidValue(
+                    settingPath.toString(),
+                    "unknown consent type, expected one of ${ConsentConverter.typeNames}",
+                )
+            settings[type] = payload.requireOneOf(settingPath, ConsentConverter.statuses)
         }
 
         firebaseInstance.setConsent(settings)

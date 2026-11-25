@@ -1,12 +1,14 @@
 package com.tealium.prism.firebase.internal.commands
 
-import com.tealium.prism.core.api.command.CommandException
+import com.tealium.prism.core.api.data.DataItem
 import com.tealium.prism.core.api.data.DataObject
+import com.tealium.prism.core.api.data.ExtractionException
+import com.tealium.prism.firebase.helpers.assertFailure
 import com.tealium.prism.firebase.helpers.runCommand
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -30,25 +32,32 @@ class SetUserIdCommandTests {
     }
 
     @Test
-    fun missing_parameter_fails_with_missing_parameter() {
+    fun missing_parameter_fails_with_missing() {
         val result = runCommand(command, DataObject.create {})
-        assertFalse(result.isSuccess)
-        val exception = result.exceptionOrNull()
-        assertTrue(exception is CommandException)
-        assertTrue(exception!!.message!!.contains("missing"))
+
+        val error = result.assertFailure<ExtractionException.Missing>()
+        assertEquals("user_id", error.key)
         verify(exactly = 0) { firebase.setUserId(any()) }
     }
 
     @Test
-    fun non_string_value_fails_with_invalid_parameter_type() {
+    fun null_value_fails_with_missing() {
+        val result = runCommand(command, DataObject.create { put("user_id", DataItem.NULL) })
+
+        val error = result.assertFailure<ExtractionException.Missing>()
+        assertEquals("user_id", error.key)
+        verify(exactly = 0) { firebase.setUserId(any()) }
+    }
+
+    @Test
+    fun non_string_value_fails_with_type_mismatch() {
         val result = runCommand(
             command,
             DataObject.create { put("user_id", DataObject.create { put("nested", "value") }) },
         )
-        assertFalse(result.isSuccess)
-        val exception = result.exceptionOrNull()
-        assertTrue(exception is CommandException)
-        assertTrue(exception!!.message!!.contains("expected type"))
+
+        val error = result.assertFailure<ExtractionException.TypeMismatch>()
+        assertEquals("user_id", error.key)
         verify(exactly = 0) { firebase.setUserId(any()) }
     }
 

@@ -1,6 +1,8 @@
 package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.Command
+import com.tealium.prism.core.api.data.LenientConverters
+import com.tealium.prism.core.api.data.require
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -21,7 +23,7 @@ import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
 internal fun setAnalyticsCollectionEnabledCommand(
     firebaseInstance: FirebaseAnalyticsInterface,
 ): Command =
-    synchronous(FirebaseCommand.SET_ANALYTICS_COLLECTION_ENABLED) { payload ->
-        val enabled = payload.requireBoolean(FirebaseDestination.AnalyticsEnabled)
+    Command.synchronous(FirebaseCommand.SET_ANALYTICS_COLLECTION_ENABLED) { payload ->
+        val enabled = payload.require(FirebaseDestination.AnalyticsEnabled, LenientConverters.BOOLEAN)
         firebaseInstance.setAnalyticsCollectionEnabled(enabled)
     }

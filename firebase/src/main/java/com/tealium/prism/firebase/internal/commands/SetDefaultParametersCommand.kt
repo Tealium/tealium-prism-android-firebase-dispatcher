@@ -1,6 +1,7 @@
 package com.tealium.prism.firebase.internal.commands
 
 import com.tealium.prism.core.api.command.Command
+import com.tealium.prism.core.api.data.extractDataObject
 import com.tealium.prism.firebase.FirebaseCommand
 import com.tealium.prism.firebase.FirebaseDestination
 import com.tealium.prism.firebase.internal.FirebaseAnalyticsInterface
@@ -27,7 +28,7 @@ import com.tealium.prism.firebase.internal.converters.ParametersBundleConverter
  * ```
  */
 internal fun setDefaultParametersCommand(firebaseInstance: FirebaseAnalyticsInterface): Command =
-    synchronous(FirebaseCommand.SET_DEFAULT_PARAMETERS) { payload ->
+    Command.synchronous(FirebaseCommand.SET_DEFAULT_PARAMETERS) { payload ->
         val paramsItem = payload.extractDataObject(FirebaseDestination.DefaultParams)
         if (paramsItem == null) {
             // Parameters key absent entirely — clear all defaults.

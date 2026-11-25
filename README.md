@@ -10,7 +10,7 @@ Command Dispatcher that routes Tealium Prism tracking events to the Firebase Ana
 |--------------------------|----------|
 | Android API              | 24+      |
 | Kotlin                   | 2.2+     |
-| Tealium Prism Core       | 0.7.0+   |
+| Tealium Prism Core       | 0.8.0+   |
 | Firebase Analytics (BoM) | 35.2.0+  |
 
 ## Installation
@@ -293,6 +293,8 @@ optional parameters and nested item arrays for e-commerce.
 
 **command_name:** `logevent`
 
+A missing or blank `event_name` fails the command. Firebase Analytics requires event names of 1 to 40 characters that start with a letter.
+
 There are two mapping approaches for this command.
 
 #### Approach 1 — Explicit event name
@@ -524,8 +526,14 @@ builder.setMappings {
 }
 ```
 
-> Passing an empty (or null) `property_value` removes that property from Firebase. A length mismatch
-> between the name and value arrays fails the command, as does a name array containing only nulls.
+> Numbers and booleans are sent as strings (`42` becomes `"42"`). An empty string, `null`, or a value that
+> can't be converted, such as an object, as `property_value` removes that property from Firebase. Array names that can't be converted, such as `null`
+> or an object, are skipped.
+>
+> The command fails if:
+> - `property_name` is an object instead of a value or an array,
+> - the name and value arrays have different lengths, or
+> - none of the names can be converted.
 
 ---
 
@@ -716,10 +724,10 @@ builder.setMappings {
 | `ad_user_data`       | `ConsentSetting(ConsentType.AD_USER_DATA)`         | `granted`, `denied`  |
 | `ad_personalization` | `ConsentSetting(ConsentType.AD_PERSONALIZATION)`   | `granted`, `denied`  |
 
-> Type and status strings are matched case-insensitively. An unknown consent type or status fails the
-> command — the Android SDK enums are closed, so an unrecognized value cannot be forwarded, and failing
-> loud surfaces the configuration mistake instead of silently dropping the entry. A `consent_settings`
-> object that resolves to no valid entries also fails.
+> Type and status strings are matched case-insensitively, and status strings are trimmed. An unknown
+> consent type or status fails the command — the Android SDK enums are closed, so an unrecognized value
+> cannot be forwarded, and failing loud surfaces the configuration mistake instead of silently dropping
+> the entry. A blank or `null` status and an empty `consent_settings` object also fail.
 
 ---
 

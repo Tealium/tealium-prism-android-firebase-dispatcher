@@ -1,11 +1,16 @@
 package com.tealium.prism.firebase.internal
 
+import com.tealium.prism.core.api.command.CommandException
 import com.tealium.prism.core.api.data.DataItemUtils.asDataList
 import com.tealium.prism.core.api.data.DataObject
+import com.tealium.prism.core.api.data.ExtractionException
+import com.tealium.prism.core.api.logger.Logger
 import com.tealium.prism.core.api.misc.Callback
 import com.tealium.prism.core.api.misc.Scheduler
 import com.tealium.prism.core.api.tracking.Dispatch
+import com.tealium.prism.firebase.Firebase
 import com.tealium.prism.firebase.FirebaseCommand
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Test
@@ -20,10 +25,11 @@ class FirebaseDispatcherTests {
     private fun newDispatcher(
         configuration: FirebaseDispatcherConfiguration =
             FirebaseDispatcherConfiguration(null, null),
+        logger: Logger = mockk(relaxed = true),
     ): FirebaseDispatcher = FirebaseDispatcher(
         firebaseInstance = firebase,
         configuration = configuration,
-        logger = mockk(relaxed = true),
+        logger = logger,
         scheduler = Scheduler.SYNCHRONOUS,
     )
 
@@ -142,6 +148,52 @@ class FirebaseDispatcherTests {
         verify(exactly = 1) { firebase.logEvent(any(), any()) }
         verify(exactly = 1) { firebase.setUserId("user_123") }
         verify(exactly = 1) { callback.onComplete(listOf(dispatch)) }
+    }
+
+    @Test
+    fun dispatch_with_invalid_payload_still_completes() {
+        val dispatcher = newDispatcher()
+        val dispatch = Dispatch.create(
+            "invalid",
+            dataObject = DataObject.create {
+                put(
+                    Dispatch.Keys.COMMAND_NAME,
+                    listOf(
+                        FirebaseCommand.LOG_EVENT.commandName,
+                        FirebaseCommand.SET_USER_ID.commandName,
+                    ).asDataList(),
+                )
+                put("user_id", "user_123")
+            },
+        )
+        val callback = mockk<Callback<List<Dispatch>>>(relaxed = true)
+
+        dispatcher.dispatch(listOf(dispatch), callback)
+
+        verify(exactly = 0) { firebase.logEvent(any(), any()) }
+        verify(exactly = 1) { firebase.setUserId("user_123") }
+        verify(exactly = 1) { callback.onComplete(listOf(dispatch)) }
+    }
+
+    @Test
+    fun dispatch_with_invalid_payload_logs_invalid_payload_failure() {
+        val logger = mockk<Logger>(relaxed = true)
+        every { logger.shouldLog(any()) } returns true
+        val dispatcher = newDispatcher(logger = logger)
+        val dispatch = Dispatch.create(
+            "invalid",
+            dataObject = DataObject.create {
+                put(Dispatch.Keys.COMMAND_NAME, FirebaseCommand.LOG_EVENT.commandName)
+            },
+        )
+
+        dispatcher.dispatch(listOf(dispatch), mockk(relaxed = true))
+
+        // invalidPayload takes its message from the ExtractionException it wraps.
+        val expected = CommandException.invalidPayload(ExtractionException.Missing("event_name"))
+        verify(exactly = 1) {
+            logger.warn(Firebase.ID, "Command '${FirebaseCommand.LOG_EVENT.commandName}' failed: $expected")
+        }
     }
 
     @Test
